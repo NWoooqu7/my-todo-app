@@ -1,0 +1,17 @@
+# Windowsが自動生成するファイル
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOSが自動生成するファイル
+.DS_Store
+
+# エディタごとの設定ファイル
+.vscode/
+.idea/
+
+# 一時ファイル・ログ
+*.tmp
+*.swp
+*.log
+~$*
