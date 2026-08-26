@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>シンプルTodo</title>
+
+  <style>
+    /* ページ全体の見た目 */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background-color: #6f2dbd;
+      color: #1a1022;
+      font-family: sans-serif;
+    }
+
+    /* Todoアプリの明るいカード */
+    .todo-app {
+      width: min(90%, 520px);
+      margin-top: 60px;
+      padding: 28px;
+      background-color: #fff8e7;
+      border: 3px solid #d29b2f;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #4c1d79;
+      text-align: center;
+      font-size: 28px;
+    }
+
+    /* 入力欄と追加ボタン */
+    .input-area {
+      display: flex;
+      gap: 8px;
+    }
+
+    #todo-input {
+      flex: 1;
+      min-width: 0;
+      padding: 11px;
+      border: 2px solid #6f2dbd;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    #todo-input:focus {
+      outline: 3px solid #b7e229;
+      outline-offset: 2px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    #add-button {
+      background-color: #b7e229;
+      color: #1a1022;
+      font-weight: bold;
+    }
+
+    #add-button:hover {
+      background-color: #a2cd1f;
+    }
+
+    /* Todo一覧 */
+    #todo-list {
+      margin: 24px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid #d8c2ef;
+    }
+
+    .todo-text {
+      flex: 1;
+      overflow-wrap: anywhere;
+    }
+
+    /* 完了したTodoの見た目 */
+    .todo-item.completed .todo-text {
+      color: #7c6c83;
+      text-decoration: line-through;
+    }
+
+    .delete-button {
+      background-color: #d29b2f;
+      color: #1a1022;
+      font-weight: bold;
+    }
+
+    .delete-button:hover {
+      background-color: #b98524;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="todo-app">
+    <h1>Todoリスト</h1>
+
+    <div class="input-area">
+      <input
+        id="todo-input"
+        type="text"
+        placeholder="やることを入力"
+        aria-label="新しいTodo"
+      >
+      <button id="add-button" type="button">追加</button>
+    </div>
+
+    <ul id="todo-list"></ul>
+  </main>
+
+  <script>
+    // HTMLの要素を取得する
+    const todoInput = document.getElementById('todo-input');
+    const addButton = document.getElementById('add-button');
+    const todoList = document.getElementById('todo-list');
+    const storageKey = 'simpleTodoList';
+
+    // 1つのTodoを画面に表示する関数
+    function createTodo(todoText, isCompleted) {
+      const listItem = document.createElement('li');
+      listItem.className = 'todo-item';
+
+      // 完了・未完了を切り替えるチェックボックス
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = isCompleted;
+      checkbox.setAttribute('aria-label', todoText + 'を完了にする');
+
+      // 保存されていたTodoが完了済みなら、打ち消し線を付ける
+      if (isCompleted) {
+        listItem.classList.add('completed');
+      }
+
+      // Todoの文字を表示するspan要素
+      const text = document.createElement('span');
+      text.className = 'todo-text';
+      text.textContent = todoText;
+
+      // Todoを消す削除ボタン
+      const deleteButton = document.createElement('button');
+      deleteButton.type = 'button';
+      deleteButton.className = 'delete-button';
+      deleteButton.textContent = '削除';
+      deleteButton.setAttribute('aria-label', todoText + 'を削除する');
+
+      // チェック時に見た目を変えて、Todo一覧を保存する
+      checkbox.addEventListener('change', function () {
+        listItem.classList.toggle('completed', checkbox.checked);
+        saveTodos();
+      });
+
+      // 削除ボタンが押されたら、このTodoを消して保存する
+      deleteButton.addEventListener('click', function () {
+        listItem.remove();
+        saveTodos();
+      });
+
+      // 作った要素を一覧に追加する
+      listItem.appendChild(checkbox);
+      listItem.appendChild(text);
+      listItem.appendChild(deleteButton);
+      todoList.appendChild(listItem);
+    }
+
+    // 現在のTodo一覧をlocalStorageに保存する関数
+    function saveTodos() {
+      const todos = [];
+
+      document.querySelectorAll('.todo-item').forEach(function (listItem) {
+        todos.push({
+          text: listItem.querySelector('.todo-text').textContent,
+          completed: listItem.querySelector('input').checked
+        });
+      });
+
+      // 配列をJSON形式の文字列に変えて保存する
+      localStorage.setItem(storageKey, JSON.stringify(todos));
+    }
+
+    // localStorageからTodo一覧を読み込む関数
+    function loadTodos() {
+      const savedTodos = localStorage.getItem(storageKey);
+
+      // 保存されたデータがなければ何もしない
+      if (savedTodos === null) {
+        return;
+      }
+
+      const todos = JSON.parse(savedTodos);
+
+      todos.forEach(function (todo) {
+        createTodo(todo.text, todo.completed);
+      });
+    }
+
+    // 入力された内容を新しいTodoとして追加する関数
+    function addTodo() {
+      const todoText = todoInput.value.trim();
+
+      // 入力欄が空なら何もしない
+      if (todoText === '') {
+        return;
+      }
+
+      createTodo(todoText, false);
+      saveTodos();
+
+      // 入力欄を空にして、もう一度入力しやすくする
+      todoInput.value = '';
+      todoInput.focus();
+    }
+
+    // 追加ボタンをクリックしたとき
+    addButton.addEventListener('click', addTodo);
+
+    // 入力欄でEnterキーを押したときも追加する
+    todoInput.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        addTodo();
+      }
+    });
+
+    // ページを開いたときに、保存されているTodoを表示する
+    loadTodos();
+  </script>
+</body>
+</html>
