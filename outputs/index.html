@@ -36,6 +36,78 @@
       font-size: 28px;
     }
 
+    [hidden] {
+      display: none !important;
+    }
+
+    /* ログイン・登録フォーム */
+    .auth-form label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+    }
+
+    .auth-input {
+      box-sizing: border-box;
+      width: 100%;
+      margin-top: 6px;
+      padding: 11px;
+      border: 2px solid #6f2dbd;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    .auth-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    #login-button {
+      background-color: #b7e229;
+      color: #1a1022;
+      font-weight: bold;
+    }
+
+    #signup-button,
+    #forgot-password-button,
+    #update-password-button,
+    #logout-button {
+      background-color: #d29b2f;
+      color: #1a1022;
+      font-weight: bold;
+    }
+
+    #forgot-password-button {
+      width: 100%;
+      margin-top: 10px;
+      background-color: transparent;
+      color: #4c1d79;
+      text-decoration: underline;
+    }
+
+    #auth-message {
+      min-height: 1.5em;
+      margin-bottom: 0;
+    }
+
+    #auth-message.error,
+    #password-reset-message.error {
+      color: #9d1735;
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    #user-email {
+      overflow-wrap: anywhere;
+    }
+
     /* 入力欄と追加ボタン */
     .input-area {
       display: flex;
@@ -116,64 +188,408 @@
   <main class="todo-app">
     <h1>Todoリスト</h1>
 
-    <div class="input-area">
-      <input
-        id="todo-input"
-        type="text"
-        placeholder="やることを入力"
-        aria-label="新しいTodo"
-      >
-      <button id="add-button" type="button">追加</button>
-    </div>
+    <!-- ログインしていないときに表示する画面 -->
+    <section id="auth-section">
+      <form id="auth-form" class="auth-form">
+        <label for="email-input">メールアドレス</label>
+        <input
+          id="email-input"
+          class="auth-input"
+          type="email"
+          autocomplete="email"
+          required
+        >
 
-    <ul id="todo-list"></ul>
+        <label for="password-input">パスワード</label>
+        <input
+          id="password-input"
+          class="auth-input"
+          type="password"
+          autocomplete="current-password"
+          minlength="6"
+          required
+        >
+
+        <div class="auth-actions">
+          <button id="login-button" type="submit">ログイン</button>
+          <button id="signup-button" type="button">新規登録</button>
+        </div>
+
+        <button id="forgot-password-button" type="button">
+          パスワードを忘れた方
+        </button>
+
+        <p id="auth-message" role="status"></p>
+      </form>
+    </section>
+
+    <!-- 再設定メールのリンクから戻ったときに表示する画面 -->
+    <section id="password-reset-section" hidden>
+      <form id="password-reset-form" class="auth-form">
+        <p>新しいパスワードを入力してください。</p>
+
+        <label for="new-password-input">新しいパスワード</label>
+        <input
+          id="new-password-input"
+          class="auth-input"
+          type="password"
+          autocomplete="new-password"
+          minlength="6"
+          required
+        >
+
+        <label for="confirm-password-input">新しいパスワード（確認）</label>
+        <input
+          id="confirm-password-input"
+          class="auth-input"
+          type="password"
+          autocomplete="new-password"
+          minlength="6"
+          required
+        >
+
+        <div class="auth-actions">
+          <button id="update-password-button" type="submit">
+            パスワードを変更
+          </button>
+        </div>
+
+        <p id="password-reset-message" role="status"></p>
+      </form>
+    </section>
+
+    <!-- ログインしているときに表示する画面 -->
+    <section id="todo-section" hidden>
+      <div class="user-area">
+        <span id="user-email"></span>
+        <button id="logout-button" type="button">ログアウト</button>
+      </div>
+
+      <div class="input-area">
+        <input
+          id="todo-input"
+          type="text"
+          placeholder="やることを入力"
+          aria-label="新しいTodo"
+        >
+        <button id="add-button" type="button">追加</button>
+      </div>
+
+      <ul id="todo-list"></ul>
+    </section>
   </main>
 
+  <!-- Supabase JavaScript ClientをCDNから読み込む -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
+    // Supabase Dashboardで確認した値に置き換える
+    // Project URLとPublishable key（旧anon key）は、ブラウザで公開してよい値です。
+    // ただし、データを守るためにSupabase側でRLSを必ず設定してください。
+    // secret keyやservice_role keyは秘密情報なので、ここには絶対に書きません。
+    const SUPABASE_URL = 'https://eyxjcjsqmfqooijcrrwt.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_0Annl62APsDYUGDs5oNpDQ_3o4HthXP';
+
+    // Supabaseへ接続するためのクライアントを初期化する
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
     // HTMLの要素を取得する
+    const authSection = document.getElementById('auth-section');
+    const authForm = document.getElementById('auth-form');
+    const emailInput = document.getElementById('email-input');
+    const passwordInput = document.getElementById('password-input');
+    const loginButton = document.getElementById('login-button');
+    const signupButton = document.getElementById('signup-button');
+    const forgotPasswordButton = document.getElementById('forgot-password-button');
+    const authMessage = document.getElementById('auth-message');
+    const passwordResetSection = document.getElementById('password-reset-section');
+    const passwordResetForm = document.getElementById('password-reset-form');
+    const newPasswordInput = document.getElementById('new-password-input');
+    const confirmPasswordInput = document.getElementById('confirm-password-input');
+    const updatePasswordButton = document.getElementById('update-password-button');
+    const passwordResetMessage = document.getElementById('password-reset-message');
+    const todoSection = document.getElementById('todo-section');
+    const userEmail = document.getElementById('user-email');
+    const logoutButton = document.getElementById('logout-button');
     const todoInput = document.getElementById('todo-input');
     const addButton = document.getElementById('add-button');
     const todoList = document.getElementById('todo-list');
-    const storageKey = 'simpleTodoList';
+    let currentUser = null;
+    let isPasswordRecovery = false;
+
+    // file:// ではメールから戻れないため、公開中のGitHub Pagesを戻り先にする
+    // SupabaseのRedirect URLsにも、このURLを登録してください。
+    const PASSWORD_RESET_REDIRECT_URL = location.protocol === 'http:' || location.protocol === 'https:'
+      ? location.origin + location.pathname
+      : 'https://nwoooqu7.github.io/my-todo-app/outputs/index.html';
+
+    // ログイン・登録画面にメッセージを表示する関数
+    function showAuthMessage(message, isError) {
+      authMessage.textContent = message;
+      authMessage.classList.toggle('error', isError);
+    }
+
+    // ログイン・登録の処理中は、ボタンを押せないようにする
+    function setAuthButtonsDisabled(isDisabled) {
+      loginButton.disabled = isDisabled;
+      signupButton.disabled = isDisabled;
+      forgotPasswordButton.disabled = isDisabled;
+    }
+
+    // 登録メールアドレス宛てに、パスワード再設定メールを送る
+    async function sendPasswordResetEmail() {
+      if (!emailInput.reportValidity()) {
+        return;
+      }
+
+      setAuthButtonsDisabled(true);
+      showAuthMessage('パスワード再設定メールを送っています...', false);
+
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(
+        emailInput.value.trim(),
+        { redirectTo: PASSWORD_RESET_REDIRECT_URL }
+      );
+
+      setAuthButtonsDisabled(false);
+
+      if (error) {
+        console.error('パスワード再設定メールを送信できませんでした:', error);
+        showAuthMessage('再設定メールを送信できませんでした: ' + error.message, true);
+        return;
+      }
+
+      showAuthMessage(
+        '再設定メールを送りました。メール内のリンクを開いてください。',
+        false
+      );
+    }
+
+    // 再設定メールのリンクを開いたあと、新しいパスワードに変更する
+    async function updatePassword(event) {
+      event.preventDefault();
+
+      if (!passwordResetForm.reportValidity()) {
+        return;
+      }
+
+      if (newPasswordInput.value !== confirmPasswordInput.value) {
+        passwordResetMessage.textContent = '確認用パスワードが一致しません。';
+        passwordResetMessage.classList.add('error');
+        return;
+      }
+
+      updatePasswordButton.disabled = true;
+      passwordResetMessage.textContent = 'パスワードを変更しています...';
+      passwordResetMessage.classList.remove('error');
+
+      const { error } = await supabaseClient.auth.updateUser({
+        password: newPasswordInput.value
+      });
+
+      if (error) {
+        console.error('パスワードを変更できませんでした:', error);
+        passwordResetMessage.textContent = 'パスワードを変更できませんでした: ' + error.message;
+        passwordResetMessage.classList.add('error');
+        updatePasswordButton.disabled = false;
+        return;
+      }
+
+      newPasswordInput.value = '';
+      confirmPasswordInput.value = '';
+      isPasswordRecovery = false;
+      await supabaseClient.auth.signOut();
+      passwordResetSection.hidden = true;
+      authSection.hidden = false;
+      todoSection.hidden = true;
+      showAuthMessage('パスワードを変更しました。新しいパスワードでログインしてください。', false);
+      updatePasswordButton.disabled = false;
+    }
+
+    // メールアドレスとパスワードで新規登録する
+    async function signUp() {
+      if (!authForm.reportValidity()) {
+        return;
+      }
+
+      setAuthButtonsDisabled(true);
+      showAuthMessage('登録しています...', false);
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email: emailInput.value.trim(),
+        password: passwordInput.value
+      });
+
+      setAuthButtonsDisabled(false);
+
+      if (error) {
+        console.error('ユーザー登録に失敗しました:', error);
+        showAuthMessage('登録できませんでした: ' + error.message, true);
+        return;
+      }
+
+      passwordInput.value = '';
+
+      if (data.session) {
+        showAuthMessage('登録してログインしました。', false);
+      } else {
+        showAuthMessage('確認メールを送りました。メール内のリンクを開いてください。', false);
+      }
+    }
+
+    // メールアドレスとパスワードでログインする
+    async function signIn(event) {
+      event.preventDefault();
+
+      if (!authForm.reportValidity()) {
+        return;
+      }
+
+      setAuthButtonsDisabled(true);
+      showAuthMessage('ログインしています...', false);
+
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email: emailInput.value.trim(),
+        password: passwordInput.value
+      });
+
+      setAuthButtonsDisabled(false);
+
+      if (error) {
+        console.error('ログインに失敗しました:', error);
+        showAuthMessage('ログインできませんでした: ' + error.message, true);
+        return;
+      }
+
+      passwordInput.value = '';
+      showAuthMessage('', false);
+    }
+
+    // 現在のユーザーをログアウトさせる
+    async function signOut() {
+      logoutButton.disabled = true;
+      const { error } = await supabaseClient.auth.signOut();
+      logoutButton.disabled = false;
+
+      if (error) {
+        console.error('ログアウトに失敗しました:', error);
+        return;
+      }
+
+      showAuthMessage('ログアウトしました。', false);
+    }
+
+    // ログイン状態に合わせて、表示する画面を切り替える
+    async function updateScreen(session) {
+      const nextUser = session ? session.user : null;
+      const isSameUser = currentUser?.id === nextUser?.id;
+
+      if (isPasswordRecovery) {
+        currentUser = nextUser;
+        authSection.hidden = true;
+        passwordResetSection.hidden = false;
+        todoSection.hidden = true;
+        return;
+      }
+
+      // 初期確認とAuthイベントが重なった場合の二重読み込みを防ぐ
+      if (isSameUser) {
+        return;
+      }
+
+      currentUser = nextUser;
+      authSection.hidden = currentUser !== null;
+      passwordResetSection.hidden = true;
+      todoSection.hidden = currentUser === null;
+      todoList.replaceChildren();
+
+      if (currentUser === null) {
+        userEmail.textContent = '';
+        return;
+      }
+
+      userEmail.textContent = currentUser.email;
+      await loadTodos();
+    }
 
     // 1つのTodoを画面に表示する関数
-    function createTodo(todoText, isCompleted) {
+    function createTodo(todo) {
       const listItem = document.createElement('li');
       listItem.className = 'todo-item';
 
       // 完了・未完了を切り替えるチェックボックス
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
-      checkbox.checked = isCompleted;
-      checkbox.setAttribute('aria-label', todoText + 'を完了にする');
+      checkbox.checked = todo.completed;
+      checkbox.setAttribute('aria-label', todo.title + 'の完了状態を切り替える');
 
-      // 保存されていたTodoが完了済みなら、打ち消し線を付ける
-      if (isCompleted) {
+      // 完了済みのTodoなら、打ち消し線を付ける
+      if (todo.completed) {
         listItem.classList.add('completed');
       }
 
       // Todoの文字を表示するspan要素
       const text = document.createElement('span');
       text.className = 'todo-text';
-      text.textContent = todoText;
+      text.textContent = todo.title;
 
       // Todoを消す削除ボタン
       const deleteButton = document.createElement('button');
       deleteButton.type = 'button';
       deleteButton.className = 'delete-button';
       deleteButton.textContent = '削除';
-      deleteButton.setAttribute('aria-label', todoText + 'を削除する');
+      deleteButton.setAttribute('aria-label', todo.title + 'を削除する');
 
-      // チェック時に見た目を変えて、Todo一覧を保存する
-      checkbox.addEventListener('change', function () {
+      // チェック時にSupabaseの完了状態を更新する
+      checkbox.addEventListener('change', async function () {
+        if (currentUser === null) {
+          return;
+        }
+
+        const newCompleted = checkbox.checked;
+        checkbox.disabled = true;
         listItem.classList.toggle('completed', checkbox.checked);
-        saveTodos();
+
+        const { error } = await supabaseClient
+          .from('todos')
+          .update({ completed: newCompleted })
+          .eq('id', todo.id)
+          .eq('user_id', currentUser.id);
+
+        if (error) {
+          console.error('Todoの完了状態を更新できませんでした:', error);
+
+          // 更新に失敗したら、画面を変更前の状態へ戻す
+          checkbox.checked = !newCompleted;
+          listItem.classList.toggle('completed', checkbox.checked);
+        }
+
+        checkbox.disabled = false;
       });
 
-      // 削除ボタンが押されたら、このTodoを消して保存する
-      deleteButton.addEventListener('click', function () {
+      // 削除ボタンが押されたら、SupabaseからTodoを削除する
+      deleteButton.addEventListener('click', async function () {
+        if (currentUser === null) {
+          return;
+        }
+
+        deleteButton.disabled = true;
+
+        const { error } = await supabaseClient
+          .from('todos')
+          .delete()
+          .eq('id', todo.id)
+          .eq('user_id', currentUser.id);
+
+        if (error) {
+          console.error('Todoを削除できませんでした:', error);
+          deleteButton.disabled = false;
+          return;
+        }
+
         listItem.remove();
-        saveTodos();
       });
 
       // 作った要素を一覧に追加する
@@ -183,53 +599,73 @@
       todoList.appendChild(listItem);
     }
 
-    // 現在のTodo一覧をlocalStorageに保存する関数
-    function saveTodos() {
-      const todos = [];
-
-      document.querySelectorAll('.todo-item').forEach(function (listItem) {
-        todos.push({
-          text: listItem.querySelector('.todo-text').textContent,
-          completed: listItem.querySelector('input').checked
-        });
-      });
-
-      // 配列をJSON形式の文字列に変えて保存する
-      localStorage.setItem(storageKey, JSON.stringify(todos));
-    }
-
-    // localStorageからTodo一覧を読み込む関数
-    function loadTodos() {
-      const savedTodos = localStorage.getItem(storageKey);
-
-      // 保存されたデータがなければ何もしない
-      if (savedTodos === null) {
+    // SupabaseからTodo一覧を読み込む関数
+    async function loadTodos() {
+      if (currentUser === null) {
         return;
       }
 
-      const todos = JSON.parse(savedTodos);
+      const { data: todos, error } = await supabaseClient
+        .from('todos')
+        .select('id, title, completed, created_at')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Todo一覧を読み込めませんでした:', error);
+        return;
+      }
 
       todos.forEach(function (todo) {
-        createTodo(todo.text, todo.completed);
+        createTodo(todo);
       });
     }
 
-    // 入力された内容を新しいTodoとして追加する関数
-    function addTodo() {
-      const todoText = todoInput.value.trim();
-
-      // 入力欄が空なら何もしない
-      if (todoText === '') {
+    // 入力された内容をSupabaseへ追加する関数
+    async function addTodo() {
+      if (currentUser === null) {
         return;
       }
 
-      createTodo(todoText, false);
-      saveTodos();
+      const todoTitle = todoInput.value.trim();
+
+      // 入力欄が空、または追加処理中なら何もしない
+      if (todoTitle === '' || addButton.disabled) {
+        return;
+      }
+
+      addButton.disabled = true;
+
+      const { data: todo, error } = await supabaseClient
+        .from('todos')
+        .insert({
+          user_id: currentUser.id,
+          title: todoTitle,
+          completed: false
+        })
+        .select('id, title, completed, created_at')
+        .single();
+
+      addButton.disabled = false;
+
+      if (error) {
+        console.error('Todoを追加できませんでした:', error);
+        return;
+      }
+
+      createTodo(todo);
 
       // 入力欄を空にして、もう一度入力しやすくする
       todoInput.value = '';
       todoInput.focus();
     }
+
+    // ログイン・登録・ログアウトのボタン操作
+    authForm.addEventListener('submit', signIn);
+    signupButton.addEventListener('click', signUp);
+    forgotPasswordButton.addEventListener('click', sendPasswordResetEmail);
+    passwordResetForm.addEventListener('submit', updatePassword);
+    logoutButton.addEventListener('click', signOut);
 
     // 追加ボタンをクリックしたとき
     addButton.addEventListener('click', addTodo);
@@ -241,8 +677,28 @@
       }
     });
 
-    // ページを開いたときに、保存されているTodoを表示する
-    loadTodos();
+    // ログイン状態が変わるたびに、表示する画面を切り替える
+    supabaseClient.auth.onAuthStateChange(function (event, session) {
+      if (event === 'PASSWORD_RECOVERY') {
+        isPasswordRecovery = true;
+      }
+
+      updateScreen(session);
+    });
+
+    // ページを開いたときのログイン状態を確認する
+    async function initializeAuth() {
+      const { data, error } = await supabaseClient.auth.getSession();
+
+      if (error) {
+        console.error('ログイン状態を確認できませんでした:', error);
+        return;
+      }
+
+      await updateScreen(data.session);
+    }
+
+    initializeAuth();
   </script>
 </body>
 </html>
