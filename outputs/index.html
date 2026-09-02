@@ -111,6 +111,7 @@
     /* 入力欄と追加ボタン */
     .input-area {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
     }
 
@@ -126,6 +127,14 @@
     #todo-input:focus {
       outline: 3px solid #b7e229;
       outline-offset: 2px;
+    }
+
+    #priority-input {
+      padding: 10px;
+      border: 2px solid #6f2dbd;
+      border-radius: 6px;
+      background-color: white;
+      font-size: 15px;
     }
 
     button {
@@ -164,6 +173,41 @@
     .todo-text {
       flex: 1;
       overflow-wrap: anywhere;
+    }
+
+    /* Todoの優先度を表すラベル */
+    .priority-badge {
+      min-width: 2em;
+      padding: 4px 8px;
+      border-radius: 999px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .priority-high {
+      background-color: #6f2dbd;
+      color: white;
+    }
+
+    .priority-soul {
+      background-color: #1a1022;
+      color: #b7e229;
+    }
+
+    .priority-medium {
+      background-color: #d29b2f;
+      color: #1a1022;
+    }
+
+    .priority-low {
+      background-color: #b7e229;
+      color: #1a1022;
+    }
+
+    .priority-absolute_zero {
+      background-color: #d8c2ef;
+      color: #1a1022;
     }
 
     /* 完了したTodoの見た目 */
@@ -272,6 +316,13 @@
           placeholder="やることを入力"
           aria-label="新しいTodo"
         >
+        <select id="priority-input" aria-label="優先度">
+          <option value="soul">魂ッ！</option>
+          <option value="high">高</option>
+          <option value="medium" selected>中</option>
+          <option value="low">低</option>
+          <option value="absolute_zero">絶対零度</option>
+        </select>
         <button id="add-button" type="button">追加</button>
       </div>
 
@@ -315,6 +366,7 @@
     const userEmail = document.getElementById('user-email');
     const logoutButton = document.getElementById('logout-button');
     const todoInput = document.getElementById('todo-input');
+    const priorityInput = document.getElementById('priority-input');
     const addButton = document.getElementById('add-button');
     const todoList = document.getElementById('todo-list');
     let currentUser = null;
@@ -519,6 +571,19 @@
       const listItem = document.createElement('li');
       listItem.className = 'todo-item';
 
+      // 古いTodoや想定外の値は、安全のため「中」として扱う
+      const validPriorities = ['soul', 'high', 'medium', 'low', 'absolute_zero'];
+      const priority = validPriorities.includes(todo.priority)
+        ? todo.priority
+        : 'medium';
+      const priorityLabels = {
+        soul: '魂ッ！',
+        high: '高',
+        medium: '中',
+        low: '低',
+        absolute_zero: '絶対零度'
+      };
+
       // 完了・未完了を切り替えるチェックボックス
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
@@ -534,6 +599,12 @@
       const text = document.createElement('span');
       text.className = 'todo-text';
       text.textContent = todo.title;
+
+      // 優先度を文字と色で表示する
+      const priorityBadge = document.createElement('span');
+      priorityBadge.className = 'priority-badge priority-' + priority;
+      priorityBadge.textContent = priorityLabels[priority] || '中';
+      priorityBadge.setAttribute('aria-label', '優先度: ' + priorityBadge.textContent);
 
       // Todoを消す削除ボタン
       const deleteButton = document.createElement('button');
@@ -595,6 +666,7 @@
       // 作った要素を一覧に追加する
       listItem.appendChild(checkbox);
       listItem.appendChild(text);
+      listItem.appendChild(priorityBadge);
       listItem.appendChild(deleteButton);
       todoList.appendChild(listItem);
     }
@@ -607,7 +679,7 @@
 
       const { data: todos, error } = await supabaseClient
         .from('todos')
-        .select('id, title, completed, created_at')
+        .select('id, title, completed, priority, created_at')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
 
@@ -628,6 +700,7 @@
       }
 
       const todoTitle = todoInput.value.trim();
+      const todoPriority = priorityInput.value;
 
       // 入力欄が空、または追加処理中なら何もしない
       if (todoTitle === '' || addButton.disabled) {
@@ -641,9 +714,10 @@
         .insert({
           user_id: currentUser.id,
           title: todoTitle,
-          completed: false
+          completed: false,
+          priority: todoPriority
         })
-        .select('id, title, completed, created_at')
+        .select('id, title, completed, priority, created_at')
         .single();
 
       addButton.disabled = false;
@@ -657,6 +731,7 @@
 
       // 入力欄を空にして、もう一度入力しやすくする
       todoInput.value = '';
+      priorityInput.value = 'medium';
       todoInput.focus();
     }
 
