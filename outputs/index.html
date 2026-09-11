@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ことことタイピング — 一文字ずつ、身につく。</title>
+<title>ことことの塔 — タイピング訓練室</title>
 <style>
 :root{font-family:"Yu Gothic UI","Meiryo",sans-serif;color:#241630;background:#f6f3f9;font-synthesis:none}
 *{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit}button{cursor:pointer;border:1px solid #d8cbe5;border-radius:9px;padding:10px 16px;background:white;color:#482069;font-weight:600}
@@ -33,11 +33,26 @@ input[type=email],input[type=password],textarea{width:100%;padding:12px;border:1
 #progress-detail{line-height:1.9}.legend{font-size:12px;color:#705d7c;line-height:1.8}footer{margin-top:28px;color:#705d7c;font-size:13px}
 @media(max-width:850px){.layout{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.group-items{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){main{padding:0 12px 24px}.card{padding:16px}header{padding:20px}h1{font-size:24px}.key{font-size:10px;height:29px}.key-row{gap:2px}.group-items{grid-template-columns:1fr}}
+
+/* CSSで描くオリジナルの塔。入力面は明るく読みやすく。 */
+body{background:radial-gradient(ellipse at top right,#443267 0,transparent 55%),#14192d}
+header::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 65% 20%,#eee3bf 0 1px,transparent 2px),radial-gradient(circle at 78% 38%,#eee3bf 0 1px,transparent 2px),radial-gradient(circle at 91% 12%,#eee3bf 0 1px,transparent 2px),radial-gradient(ellipse at 80% 150%,#9c815d 0 34%,transparent 35%)}
+header{position:relative;overflow:hidden;min-height:185px;background:transparent;border-bottom:1px solid #a98c59;padding-right:150px}
+header::after{content:"";position:absolute;right:6%;bottom:-10px;width:90px;height:170px;background:repeating-linear-gradient(0deg,#756188 0 15px,#d5b67a 16px 18px);clip-path:polygon(40% 0,60% 0,60% 15%,75% 15%,75% 55%,88% 55%,100% 100%,0 100%,12% 55%,25% 55%,25% 15%,40% 15%)}
+header .brand{color:#e7cfa0}header p{line-height:1.8}.userbar,footer{color:#eee2d1}
+.card{border-color:#cdbb9f;box-shadow:0 8px 25px #0002}.summary{background:#f2eadc}
+#guest-welcome,#today,#trial-offer{margin-bottom:22px}#guest-welcome h2{font-size:27px}
+#target{margin-bottom:8px}#typing-input{margin-top:4px;font-size:21px}
+body.focus .layout{grid-template-columns:minmax(0,1fr)}body.focus aside,body.focus #today,body.focus #instructions,body.focus #progress-detail{display:none}
+body.focus header{min-height:0;padding-top:12px;padding-bottom:12px}body.focus header p{display:none}
+#growth,#measurement-detail{line-height:1.8}#today p{line-height:1.9}.auth{margin:24px auto}
+@media(max-width:480px){header{padding-right:90px}header::after{width:50px;right:15px}#guest-welcome h2{font-size:22px}}
 </style>
 </head>
 <body>
-<header><div class="brand">KOTOKOTO / TYPING PRACTICE</div><h1>ことことタイピング</h1><p>見ながら、ゆっくり。一文字ずつ、身につく。</p></header>
+<header><div class="brand">KOTOKOTO TOWER / TRAINING ROOM</div><h1>ことことの塔</h1><p>一文字ずつ、未知の階へ。<br>キーボードを見ながらで大丈夫。休んでも、またここから。</p></header>
 <main>
+<section id="guest-welcome" class="card"><p class="eyebrow">登録不要 / はじめの一歩</p><h2>FとJから、まずお試し。</h2><p>キーの突起を探して、ゆっくり8文字。記録を残すかは、あとで選べます。</p><button id="guest-button" class="primary">最初の訓練をはじめる</button> <a href="#auth-section">ログインして続ける</a></section>
 <section id="auth-section" class="card auth" hidden>
 <h2>今日も、少しずつ練習しよう</h2><p class="muted">ログインすると、練習の記録を別のPCでも続けられます。</p>
 <form id="auth-form">
@@ -58,28 +73,35 @@ input[type=email],input[type=password],textarea{width:100%;padding:12px;border:1
 <p id="boot-message" class="message" role="status">ログイン状態を確認しています…</p>
 <section id="learning-section" hidden>
 <div class="userbar"><span id="user-email"></span><button id="logout-button">ログアウト</button></div>
+<section id="trial-offer" class="card" hidden><p>お試し結果がこのページに残っています。このアカウントへ保存しますか？</p><button id="import-trial">体験結果を保存する</button> <button id="discard-trial">保存しない</button></section>
+<section id="today" class="card"><h2>今日のことこと</h2><p id="recommendation">まずは最初の階から。</p><button id="recommended-button" class="primary">今日の練習をはじめる</button> <button id="choose-button">自分で問題を選ぶ</button><p class="muted">3分は目安です。時間制限はありません。今日は終えても、また始められます。</p></section>
 <div class="layout">
-<aside class="card"><h2>練習の道のり</h2><div id="summary" class="summary">記録を読み込み中…</div>
+<aside class="card"><h2>塔の道のり</h2><div id="summary" class="summary">記録を読み込み中…</div>
 <p class="muted">まずは短い問題から。順番に進んでも、同じ問題を繰り返しても大丈夫です。</p>
 <p id="load-message" class="message" role="status"></p><button id="reload-button" hidden>読み込みを再試行</button>
 <nav id="exercise-list" aria-label="練習問題"></nav></aside>
 <section class="card" id="practice">
+<button id="back-to-list" hidden>問題一覧に戻る</button>
 <div id="empty-state"><h2>練習問題を選びましょう</h2><p class="muted">初めての方は「キーの位置」から始めてみてください。</p></div>
 <div id="exercise-panel" hidden>
 <p id="exercise-category" class="eyebrow"></p><h2 id="exercise-title"></h2><p id="instructions"></p><p id="source" class="muted" hidden></p>
 <p id="input-guide" class="summary"></p>
 <div id="target" aria-label="正解の入力内容"></div>
+<label for="typing-input">ここに入力</label><textarea id="typing-input" rows="3" maxlength="2000" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" disabled aria-describedby="input-guide input-feedback"></textarea>
 <p class="legend">緑：一致 ／ 赤い波線：違い ／ 紫の下線：次の文字（入力位置で比較）</p>
 <div class="actions"><label><input id="hint-toggle" type="checkbox"> キーボードを表示</label></div>
 <div id="keyboard-area"><div id="keyboard" aria-label="日本語JISキーボードの配置"></div>
 <p class="legend">緑のキーがホームポジション。左手は A S D F、右手は J K L ;。F・Jの突起を目印に、親指はスペースへ。紫のキーが次に押すキーです。</p></div>
-<label for="typing-input">ここに入力</label><textarea id="typing-input" rows="3" maxlength="2000" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" disabled aria-describedby="input-guide input-feedback"></textarea>
+
 <p id="input-feedback" class="muted"></p>
-<div class="actions"><button id="start-button" class="primary">開始</button><button id="score-button" disabled>採点</button><span id="timer" class="muted">0.0 秒</span></div>
+<div class="actions"><button id="start-button" class="primary">開始</button><button id="score-button" disabled>採点</button><button id="stop-button" disabled>中断する</button><button id="restart-button" disabled>最初からやり直す</button><span id="timer" class="muted">0.0 秒</span></div>
+<label class="muted"><input id="test-mode" type="checkbox"> 動作確認用（成長比較・進捗に含めない）</label>
 <p id="practice-message" class="message" role="status"></p>
 <section id="result" hidden aria-label="今回の結果">
 <h3>今回の記録</h3><div id="metrics" class="metrics"></div><p id="qualification"></p>
+<p id="measurement-detail" class="muted"></p><p id="growth" role="status"></p>
 <p id="save-message" class="message" role="status"></p>
+<button id="guest-login" hidden>記録を残して続ける（ログイン・登録）</button>
 <div class="actions"><button id="save-button" hidden>保存を再試行</button><button id="again-button">もう一度練習</button><button id="next-button" class="primary">次の問題</button></div>
 </section>
 <p id="progress-detail" class="muted"></p>
@@ -98,12 +120,68 @@ const REDIRECT_URL = /^https?:$/.test(location.protocol)
   ? location.origin + location.pathname
   : 'https://nwoooqu7.github.io/my-todo-app/outputs/index.html';
 const $ = id => document.getElementById(id);
-const levels = ['キーの位置', 'ホームポジション', 'ヒントを減らして単語', '日本語の短文'];
-const statusNames = { not_started: '未着手', practicing: '練習中', mastered: '習得済み' };
+const levels = ['キーの位置', 'ホームポジション', 'ヒントを減らして単語', '母音', 'ひらがな', '小さい文字', '変換', '日本語の短文'];
+const statusNames = { not_started: '未着手', practicing: '練習中', mastered: 'この問題の目標達成' };
 let client, currentUser = null, recovery = false, screenReady = false;
 let exercises = [], progress = new Map(), selected = null;
 let running = false, composing = false, timerId, startTime = 0, startedAt, hintUsed = false;
 let pending = null, saving = false, generation = 0, loadSequence = 0;
+let guest = false, trial = null, history = [], recommended = null;
+let measurement, testRun = false;
+// ゲスト問題はHTML内だけ。匿名でDBを読む必要はありません。
+const trialExercise = { id:'10000000-0000-4000-8000-000000000001',
+  title:'FとJを見つけよう', prompt_text:'FとJの突起を探し、交互に入力しましょう。',
+  expected_input:'fjfjfjfj', exercise_type:'key_drill', level:1, difficulty:1,
+  category:'キーの位置', keyboard_hint_default:true, target_speed:15 };
+function newMeasurement() { return {version:1, method:'direct', corrections:0, keys:{}}; }
+function focusPractice(active) {
+  document.body.classList.toggle('focus',active);
+  $('stop-button').disabled = !active;
+  $('restart-button').disabled = !active;
+  $('test-mode').disabled = active;
+}
+function cancelPractice(restart = false) {
+  if (saving || (!running && !pending)) return;
+  if (!confirm('この練習は保存せず終了します。よろしいですか？')) return;
+  pending = null; resetPractice(); renderList();
+  message('practice-message','中断しました。休んでも、また始められます。');
+  if (restart) $('start-button').click();
+}
+$('stop-button').onclick = () => cancelPractice();
+$('restart-button').onclick = () => cancelPractice(true);
+$('choose-button').onclick = () => $('exercise-list').scrollIntoView({block:'start'});
+$('back-to-list').onclick = () => {
+  if (running || saving || pending) return;
+  document.body.classList.remove('focus');
+  $('exercise-list').scrollIntoView({block:'start'});
+};
+$('guest-login').onclick = () => {
+  $('auth-section').scrollIntoView({block:'start'});
+  $('email-input').focus();
+};
+$('recommended-button').onclick = () => { if(recommended) selectExercise(recommended); };
+$('guest-button').onclick = () => {
+  if (currentUser) return;
+  guest = true; exercises = [trialExercise]; progress.clear();
+  $('learning-section').hidden = false; $('logout-button').hidden = true;
+  $('user-email').textContent = 'お試し中 · クラウドには保存していません';
+  $('guest-welcome').hidden = true;
+  selectExercise(trialExercise);
+  $('practice').scrollIntoView({block:'start'});
+};
+$('discard-trial').onclick = () => {trial=null;$('trial-offer').hidden=true;};
+$('import-trial').onclick = () => {
+  if (!trial || running || pending || saving) return;
+  const exercise = exercises.find(e=>e.id===trial.args.p_exercise_id);
+  if (!exercise || normalizeText(exercise.expected_input)!==trial.args.p_expected_input) {
+    message('load-message','体験問題が変更されています。保存せず、公開問題を練習してください。',true);return;
+  }
+  selectExercise(exercise);
+  pending={...trial, owner:currentUser.id};trial=null;$('trial-offer').hidden=true;
+  $('typing-input').value=pending.args.p_typed_text;renderTarget();
+  showResult(calculateScore(exercise.expected_input,pending.args.p_typed_text,pending.args.p_elapsed_ms),pending.args.p_elapsed_ms);
+  void saveAttempt();
+};
 
 // 採点はUnicodeの文字単位。UTF-16の長さで日本語や絵文字を分割しません。
 function normalizeText(text) {
@@ -145,7 +223,7 @@ function progressText(exercise) {
   const p = progress.get(exercise.id);
   if (!p) return '未着手 · まずは1回、練習してみましょう。';
   return statusNames[p.status] + ' · 練習 ' + p.attempt_count + '回 · 条件達成 ' +
-    p.qualifying_attempt_count + '回（習得の目安：3回） · 最高正確率 ' + Number(p.best_accuracy).toFixed(1) +
+    p.qualifying_attempt_count + '回（目標達成の目安：3回） · 最高の仕上がりの正確さ ' + Number(p.best_accuracy).toFixed(1) +
     '% · 最高速度 ' + Number(p.best_speed).toFixed(1) + '文字/分 · 最終練習 ' +
     new Date(p.last_practiced_at).toLocaleString('ja-JP');
 }
@@ -154,7 +232,12 @@ function progressText(exercise) {
 function showSession(session) {
   const nextUser = session?.user || null;
   const sameUser = currentUser?.id === nextUser?.id;
+  if (currentUser && !sameUser) trial = null;
   currentUser = nextUser;
+  guest = false;
+  $('guest-welcome').hidden = !!currentUser || recovery;
+  $('logout-button').hidden = false;
+  $('trial-offer').hidden = !currentUser || !trial || recovery;
   $('boot-message').hidden = true;
   $('auth-section').hidden = !!currentUser || recovery;
   $('password-reset-section').hidden = !recovery;
@@ -164,11 +247,13 @@ function showSession(session) {
   generation++;
   clearInterval(timerId);
   running = false; composing = false; pending = null; saving = false;
-  exercises = []; progress.clear(); selected = null;
+  exercises = []; progress.clear(); history = []; selected = null; focusPractice(false);
   $('exercise-panel').hidden = true;
   $('empty-state').hidden = false;
   $('exercise-list').replaceChildren();
   $('typing-input').value = '';
+  $('test-mode').checked = false;
+  $('guest-login').hidden = true;
   $('metrics').replaceChildren();
   $('result').hidden = true;
   $('user-email').textContent = currentUser?.email || '';
@@ -250,11 +335,13 @@ async function loadExercises() {
   try {
     const results = await Promise.all([
       client.from('exercises').select('*').eq('is_published', true).order('display_order'),
-      client.from('user_exercise_progress').select('*').eq('user_id', owner)
+      client.from('user_exercise_progress').select('*').eq('user_id', owner),
+      client.from('typing_attempts').select('*').eq('user_id',owner).order('completed_at',{ascending:false}).limit(500)
     ]);
     if (generation !== epoch || token !== loadSequence) return;
     exercises = unwrap(results[0]);
     progress = new Map(unwrap(results[1]).map(p => [p.exercise_id, p]));
+    history = unwrap(results[2]);
     renderList();
     message('load-message', exercises.length ? '' : '公開中の練習問題がありません。');
   } catch (error) {
@@ -265,19 +352,20 @@ async function loadExercises() {
 }
 $('reload-button').onclick = loadExercises;
 function renderList() {
+  $('back-to-list').disabled = running || saving || !!pending;
   const openLevels = new Set([...document.querySelectorAll('.exercise-group[open]')].map(el => Number(el.dataset.level)));
   $('exercise-list').replaceChildren();
-  $('summary').textContent = '習得済み ' + exercises.filter(e => progress.get(e.id)?.status === 'mastered').length +
+  $('summary').textContent = 'この問題の目標達成 ' + exercises.filter(e => progress.get(e.id)?.status === 'mastered').length +
     ' / ' + exercises.length + '問 · 練習 ' +
     [...progress.values()].reduce((sum, p) => sum + p.attempt_count, 0) + '回';
-  for (let level = 1; level <= 4; level++) {
+  for (let level = 1; level <= levels.length; level++) {
     const group = exercises.filter(e => e.level === level);
     if (!group.length) continue;
     const section = document.createElement('details');
     section.className = 'exercise-group'; section.dataset.level = level;
     section.open = openLevels.has(level) || level === (selected?.level || 1);
     const heading = document.createElement('summary');
-    heading.textContent = level + '. ' + levels[level - 1];
+    heading.textContent = level + '階 · ' + levels[level - 1];
     const items = document.createElement('div'); items.className = 'group-items';
     section.append(heading, items); $('exercise-list').append(section);
     for (const exercise of group) {
@@ -292,6 +380,7 @@ function renderList() {
       items.append(button);
     }
   }
+  recommendPractice();
   if (selected) $('progress-detail').textContent = progressText(selected);
 }
 function selectExercise(exercise) {
@@ -313,15 +402,17 @@ function selectExercise(exercise) {
   if (matchMedia('(max-width: 850px)').matches) $('practice').scrollIntoView({ block: 'start' });
 }
 function resetPractice() {
-  clearInterval(timerId); running = false; composing = false;
+  clearInterval(timerId); running = false; composing = false; focusPractice(false);
   $('typing-input').value = ''; $('typing-input').disabled = true;
   $('start-button').disabled = false; $('score-button').disabled = true;
   $('result').hidden = true; $('timer').textContent = '0.0 秒';
+  $('guest-login').hidden = true;
+  $('back-to-list').hidden = true;
   $('hint-toggle').checked = selected.keyboard_hint_default;
   $('hint-toggle').disabled = false;
   $('keyboard-area').hidden = !$('hint-toggle').checked;
   message('practice-message', '「開始」を押すと時間を計ります。');
-  message('input-feedback', '');
+  message('input-feedback', ''); message('growth',''); message('measurement-detail','');
   renderTarget();
   renderKeyboard();
 }
@@ -385,6 +476,9 @@ $('hint-toggle').onchange = () => {
 };
 $('start-button').onclick = () => {
   if (!selected || running || pending || saving) return;
+  measurement = newMeasurement();
+  if (selected.exercise_type !== 'key_drill') measurement.method = 'ime';
+  testRun = $('test-mode').checked; focusPractice(true);
   running = true; startedAt = new Date().toISOString(); startTime = performance.now();
   hintUsed = $('hint-toggle').checked;
   $('typing-input').disabled = false; $('typing-input').focus();
@@ -394,6 +488,7 @@ $('start-button').onclick = () => {
   renderList();
 };
 $('typing-input').addEventListener('compositionstart', () => {
+  if (measurement) measurement.method='ime';
   composing = true; $('score-button').disabled = true;
 });
 $('typing-input').addEventListener('compositionend', () => {
@@ -409,23 +504,33 @@ $('score-button').onclick = () => {
   let score;
   try { score = calculateScore(selected.expected_input, $('typing-input').value, elapsed); }
   catch (error) { message('practice-message', error.message, true); return; }
-  running = false; clearInterval(timerId);
+  running = false; clearInterval(timerId); focusPractice(false);
   $('score-button').disabled = true; $('typing-input').disabled = true; $('hint-toggle').disabled = true;
   $('timer').textContent = (elapsed / 1000).toFixed(1) + ' 秒';
   // 同じIDを再送することで、応答が失われても重複保存しません。
-  pending = { owner: currentUser.id, args: {
+  pending = { owner: currentUser?.id || null, args: {
     p_attempt_id: crypto.randomUUID(), p_exercise_id: selected.id,
     p_typed_text: normalizeText($('typing-input').value), p_elapsed_ms: elapsed,
-    p_hint_used: hintUsed, p_started_at: startedAt, p_completed_at: new Date().toISOString()
+    p_hint_used: hintUsed, p_started_at: startedAt, p_completed_at: new Date().toISOString(),
+    p_expected_input: normalizeText(selected.expected_input),
+    p_measurement: {...measurement, source:testRun?'test':guest?'guest':'practice'}
   }};
   showResult(score, elapsed);
-  void saveAttempt();
+  if (guest) {
+    trial = pending; pending = null;
+    message('save-message','お試し完了。記録を残すにはログインしてください。保存するかはログイン後に選べます。このページを閉じると体験結果は消えます。');
+    $('save-button').hidden=true;$('again-button').disabled=false;$('next-button').disabled=true;
+    $('guest-login').hidden=false;
+    renderList();
+  } else void saveAttempt();
 };
 function showResult(score, elapsed) {
+  document.body.classList.add('focus');
+  $('back-to-list').hidden=false;
   $('result').hidden = false;
   $('metrics').replaceChildren();
   for (const [label, value] of [
-    ['正確率', score.accuracy.toFixed(1) + '%'],
+    ['仕上がりの正確さ', score.accuracy.toFixed(1) + '%'],
     ['正しい文字 / 分', score.typing_speed.toFixed(1)],
     ['経過秒', (elapsed / 1000).toFixed(1)],
     ['最終入力の誤り', String(score.error_count)]
@@ -436,8 +541,8 @@ function showResult(score, elapsed) {
   }
   const qualified = score.accuracy >= 95 && score.typing_speed >= selected.target_speed;
   $('qualification').textContent = qualified
-    ? '今回の習得条件を達成！ 合計3回の達成で「習得済み」です。'
-    : '目標は正確率95%以上・' + selected.target_speed + '文字/分。同じ問題をゆっくり練習しましょう。';
+    ? '今回の条件を達成！ 合計3回の達成で「この問題の目標達成」です。'
+    : '目標は仕上がりの正確さ95%以上・' + selected.target_speed + '文字/分。同じ問題をゆっくり練習しましょう。';
   message('practice-message', '最終入力を採点しました。途中で修正した間違いは誤り数に含みません。');
 }
 async function saveAttempt() {
@@ -448,14 +553,16 @@ async function saveAttempt() {
   $('logout-button').disabled = true;
   message('save-message', '記録を保存しています…'); renderList();
   try {
-    const data = unwrap(await client.rpc('record_typing_attempt', attempt.args));
+    const data = unwrap(await client.rpc('record_typing_attempt_v2', attempt.args));
     if (epoch !== generation || currentUser?.id !== attempt.owner) return;
-    if (!data?.progress || !data?.attempt) throw new Error('保存結果を確認できませんでした。再試行してください。');
-    progress.set(data.progress.exercise_id, data.progress);
+    if (!data?.attempt) throw new Error('保存結果を確認できませんでした。再試行してください。');
+    if (data.progress) progress.set(data.progress.exercise_id, data.progress);
+    showGrowth(data.attempt);
+    history = [data.attempt,...history.filter(a=>a.id!==data.attempt.id)].slice(0,500);
     showResult(data.attempt, data.attempt.elapsed_ms);
     pending = null;
-    message('save-message', '保存しました。' + statusNames[data.progress.status] +
-      ' · 条件達成 ' + data.progress.qualifying_attempt_count + '回');
+    message('save-message', '保存しました。' + (data.attempt.measurement?.source==='test' ? '動作確認用。進捗には含めません。' : statusNames[data.progress.status] +
+      ' · 条件達成 ' + data.progress.qualifying_attempt_count + '回'));
   } catch (error) {
     if (epoch !== generation) return;
     report('save-message', '保存できませんでした。結果はこの画面に残っています。ページを閉じずに再試行してください', error);
@@ -476,7 +583,7 @@ $('next-button').onclick = () => {
   if (next) selectExercise(next);
 };
 window.addEventListener('beforeunload', event => {
-  if (running || pending) { event.preventDefault(); event.returnValue = ''; }
+  if (running || pending || trial) { event.preventDefault(); event.returnValue = ''; }
 });
 async function initialize() {
   try {
@@ -491,6 +598,66 @@ async function initialize() {
     const data = unwrap(await client.auth.getSession());
     if (!authEventSeen) showSession(data.session);
   } catch (error) { report('boot-message', '起動できませんでした', error); }
+}
+
+/* 途中の操作は英字だけ測定。IMEや貼り付けを「打ち間違い」とは数えません。
+   カーソル位置で期待された文字への試行数を集計し、指・視線は推測しません。 */
+$('typing-input').addEventListener('keydown',event=>{
+  if (running && selected.exercise_type==='key_drill' && event.key==='Enter' && !event.isComposing && !composing && event.keyCode!==229) event.preventDefault();
+});
+$('typing-input').addEventListener('beforeinput',event=>{
+  if (!running || !measurement) return;
+  if (selected.exercise_type==='key_drill' && !composing && !event.isComposing &&
+      ['insertParagraph','insertLineBreak'].includes(event.inputType)) {event.preventDefault();return;}
+  if (composing || event.isComposing || selected.exercise_type!=='key_drill') return;
+  if (event.inputType.startsWith('delete')) {measurement.corrections++;return;}
+  if (event.inputType==='insertText' && event.data?.length===1) {
+    const position=Array.from(normalizeText($('typing-input').value.slice(0,$('typing-input').selectionStart))).length;
+    const expected=Array.from(normalizeText(selected.expected_input))[position];
+    if (expected) {
+      const count=measurement.keys[expected] ||= {attempts:0,errors:0};
+      count.attempts++; if(event.data!==expected) count.errors++;
+    }
+  } else if(event.inputType.startsWith('insert') || event.inputType.startsWith('history')) measurement.method='assisted';
+});
+for (const type of ['paste','drop']) $('typing-input').addEventListener(type,()=>{if(running)measurement.method='assisted';});
+function eligible(a) {
+  return a.measurement?.version===1 && a.measurement.source==='practice' &&
+    a.measurement.method==='direct';
+}
+function showGrowth(a) {
+  const m=a.measurement;
+  message('measurement-detail', selected.exercise_type==='key_drill' && m?.method==='direct'
+    ? '修正操作 '+m.corrections+'回 · 途中の誤入力 '+Object.values(m.keys).reduce((sum,k)=>sum+k.errors,0)+'回（入力位置で比較）'
+    : 'IME・補助入力は通常の英字操作とは分けて扱います。');
+  const prior=eligible(a) && history.find(b=>eligible(b)&&b.id!==a.id&&b.exercise_id===a.exercise_id&&
+    b.hint_used===a.hint_used&&b.expected_snapshot===a.expected_snapshot);
+  if (!prior) {message('growth','比較できる通常練習の前回記録がまだありません。今日は、ここから。');return;}
+  const delta=Number(a.accuracy)-Number(prior.accuracy);
+  const correction=Number(a.measurement.corrections)-Number(prior.measurement.corrections);
+  message('growth','同じ問題文・ヒント条件の前回（'+new Date(prior.completed_at).toLocaleDateString('ja-JP')+
+    '）と比べ、仕上がりの正確さ '+(delta>=0?'+':'')+delta.toFixed(1)+'ポイント、修正操作 '+(correction>=0?'+':'')+correction+'回。速さは '+
+    Number(a.typing_speed).toFixed(1)+'文字/分（前回 '+Number(prior.typing_speed).toFixed(1)+'）。上がる日も、休む日もあって大丈夫。');
+}
+function recommendPractice() {
+  const pool=exercises, counts={};
+  for (const a of history.filter(eligible)) {
+    const e=pool.find(e=>e.id===a.exercise_id);
+    if (!e || e.exercise_type!=='key_drill' || normalizeText(e.expected_input)!==a.expected_snapshot) continue;
+    for(const [key,c] of Object.entries(a.measurement.keys)) {
+      const total=counts[key] ||= {attempts:0,errors:0};total.attempts+=c.attempts;total.errors+=c.errors;
+    }
+  }
+  const weak=Object.entries(counts).filter(([,c])=>c.attempts>=10&&c.errors/c.attempts>=.2).sort((a,b)=>b[1].errors/b[1].attempts-a[1].errors/a[1].attempts)[0];
+  recommended=weak && pool.find(e=>e.exercise_type==='key_drill'&&e.expected_input.includes(weak[0]));
+  let reason=recommended ? '「'+weak[0]+'」が必要な場面で '+weak[1].attempts+'回中'+weak[1].errors+'回、異なる文字の入力がありました。復習してみましょう。' : '';
+  if(!recommended) {
+    recommended=pool.find(e=>progress.get(e.id)?.status==='practicing') || pool.find(e=>!progress.has(e.id)||progress.get(e.id)?.status==='not_started');
+    reason='途中の問題、またはまだ練習していない問題から。一文字ずつ進めましょう。';
+  }
+  if(!recommended) {recommended=pool.slice().sort((a,b)=>String(progress.get(a.id)?.last_practiced_at||'').localeCompare(String(progress.get(b.id)?.last_practiced_at||'')))[0];reason='すべて取り組めました。しばらく練習していない問題をもう一度。';}
+  $('recommendation').textContent=recommended ? recommended.title+' — '+reason : '問題を読み込むと、おすすめを表示します。';
+  $('recommended-button').disabled=!recommended||running||saving||!!pending;
 }
 initialize();
 </script>
