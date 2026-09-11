@@ -1,779 +1,498 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>シンプルTodo</title>
-
-  <style>
-    /* ページ全体の見た目 */
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      background-color: #6f2dbd;
-      color: #1a1022;
-      font-family: sans-serif;
-    }
-
-    /* Todoアプリの明るいカード */
-    .todo-app {
-      width: min(90%, 520px);
-      margin-top: 60px;
-      padding: 28px;
-      background-color: #fff8e7;
-      border: 3px solid #d29b2f;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
-      margin-top: 0;
-      color: #4c1d79;
-      text-align: center;
-      font-size: 28px;
-    }
-
-    [hidden] {
-      display: none !important;
-    }
-
-    /* ログイン・登録フォーム */
-    .auth-form label {
-      display: block;
-      margin-top: 14px;
-      font-weight: bold;
-    }
-
-    .auth-input {
-      box-sizing: border-box;
-      width: 100%;
-      margin-top: 6px;
-      padding: 11px;
-      border: 2px solid #6f2dbd;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-
-    .auth-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 18px;
-    }
-
-    #login-button {
-      background-color: #b7e229;
-      color: #1a1022;
-      font-weight: bold;
-    }
-
-    #signup-button,
-    #forgot-password-button,
-    #update-password-button,
-    #logout-button {
-      background-color: #d29b2f;
-      color: #1a1022;
-      font-weight: bold;
-    }
-
-    #forgot-password-button {
-      width: 100%;
-      margin-top: 10px;
-      background-color: transparent;
-      color: #4c1d79;
-      text-decoration: underline;
-    }
-
-    #auth-message {
-      min-height: 1.5em;
-      margin-bottom: 0;
-    }
-
-    #auth-message.error,
-    #password-reset-message.error {
-      color: #9d1735;
-    }
-
-    .user-area {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    #user-email {
-      overflow-wrap: anywhere;
-    }
-
-    /* 入力欄と追加ボタン */
-    .input-area {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    #todo-input {
-      flex: 1;
-      min-width: 0;
-      padding: 11px;
-      border: 2px solid #6f2dbd;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-
-    #todo-input:focus {
-      outline: 3px solid #b7e229;
-      outline-offset: 2px;
-    }
-
-    #priority-input {
-      padding: 10px;
-      border: 2px solid #6f2dbd;
-      border-radius: 6px;
-      background-color: white;
-      font-size: 15px;
-    }
-
-    button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 15px;
-    }
-
-    #add-button {
-      background-color: #b7e229;
-      color: #1a1022;
-      font-weight: bold;
-    }
-
-    #add-button:hover {
-      background-color: #a2cd1f;
-    }
-
-    /* Todo一覧 */
-    #todo-list {
-      margin: 24px 0 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .todo-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 0;
-      border-bottom: 1px solid #d8c2ef;
-    }
-
-    .todo-text {
-      flex: 1;
-      overflow-wrap: anywhere;
-    }
-
-    /* Todoの優先度を表すラベル */
-    .priority-badge {
-      min-width: 2em;
-      padding: 4px 8px;
-      border-radius: 999px;
-      text-align: center;
-      font-size: 13px;
-      font-weight: bold;
-    }
-
-    .priority-high {
-      background-color: #6f2dbd;
-      color: white;
-    }
-
-    .priority-soul {
-      background-color: #1a1022;
-      color: #b7e229;
-    }
-
-    .priority-medium {
-      background-color: #d29b2f;
-      color: #1a1022;
-    }
-
-    .priority-low {
-      background-color: #b7e229;
-      color: #1a1022;
-    }
-
-    .priority-absolute_zero {
-      background-color: #d8c2ef;
-      color: #1a1022;
-    }
-
-    /* 完了したTodoの見た目 */
-    .todo-item.completed .todo-text {
-      color: #7c6c83;
-      text-decoration: line-through;
-    }
-
-    .delete-button {
-      background-color: #d29b2f;
-      color: #1a1022;
-      font-weight: bold;
-    }
-
-    .delete-button:hover {
-      background-color: #b98524;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ことことタイピング — 一文字ずつ、身につく。</title>
+<style>
+:root{font-family:"Yu Gothic UI","Meiryo",sans-serif;color:#241630;background:#f6f3f9;font-synthesis:none}
+*{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit}button{cursor:pointer;border:1px solid #d8cbe5;border-radius:9px;padding:10px 16px;background:white;color:#482069;font-weight:600}
+button:hover:not(:disabled){background:#f0e8fa}button:disabled{opacity:.5;cursor:default}button.primary{background:#642ca1;color:white;border-color:#642ca1}button.primary:hover:not(:disabled){background:#4c207e}
+:focus-visible{outline:3px solid #967119;outline-offset:3px}[hidden]{display:none!important}
+header{background:#45206d;color:white;padding:26px max(24px,calc((100% - 1180px)/2));border-bottom:5px solid #c4e46b}
+header .brand{font-size:13px;letter-spacing:.16em;color:#d5ee96}h1{font-size:28px;margin:8px 0}header p{margin:0;color:#e6daf1}
+main{max-width:1180px;margin:28px auto;padding:0 24px 40px}h2{font-size:21px;margin:0 0 12px}h3{font-size:16px;margin:0 0 10px}
+.card{background:white;border:1px solid #e1d8ea;border-radius:16px;padding:24px;box-shadow:0 3px 12px #46236606}
+.auth{max-width:460px;margin:40px auto}.auth label{display:block;margin:15px 0 6px;font-weight:600}
+input[type=email],input[type=password],textarea{width:100%;padding:12px;border:1px solid #aa92bd;border-radius:8px;background:white;color:#241630}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}.message{min-height:1.5em;white-space:pre-wrap}.error{color:#a11934}
+.muted{color:#705d7c;font-size:14px;line-height:1.8}.userbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}.userbar span{overflow-wrap:anywhere}
+.layout{display:grid;grid-template-columns:310px minmax(0,1fr);gap:22px;align-items:start}
+#exercise-list{display:grid;gap:8px}.exercise{display:block;text-align:left;width:100%;padding:12px;font-weight:400}.exercise strong,.exercise small{display:block}.exercise small{font-size:12px;margin-top:5px;color:#705d7c}
+.exercise-group summary{cursor:pointer;color:#592983;font-weight:600;padding:12px 0}.group-items{display:grid;gap:8px}
+.exercise[aria-current=true]{background:#eee3fb;border:2px solid #713cad;padding:11px}.level-heading{margin:20px 0 2px;color:#592983}
+.summary{background:#f2ecd8;padding:12px;border-radius:8px;margin-bottom:14px;line-height:1.8}.eyebrow{font-size:12px;letter-spacing:.06em;color:#673795;font-weight:700}
+#instructions{line-height:1.9}#target{background:#f5f0fb;border-left:4px solid #7b46aa;padding:18px;font-size:23px;line-height:1.9;white-space:pre-wrap;overflow-wrap:anywhere;min-height:90px}
+.correct{background:#dcecb6;color:#244a1b}.wrong{background:#fce1e4;color:#922339;text-decoration:underline wavy}.next{border-bottom:3px solid #6d329f}
+#typing-input{margin-top:8px;resize:vertical;min-height:115px;line-height:1.8}label[for=typing-input]{display:block;margin-top:20px;font-weight:600}
+#keyboard{margin-top:12px;padding:12px 6px;background:#eee9f3;border-radius:12px}
+.key-row{display:grid;grid-template-columns:repeat(32,minmax(0,1fr));gap:3px;margin:4px 0}.key{display:flex;align-items:center;justify-content:center;min-width:0;grid-column:span 2;height:36px;border:1px solid #cabbd7;border-bottom:3px solid #b8a4c9;border-radius:5px;background:white;font:13px monospace}
+.key.wide{font-size:10px}.key.home{background:#e3ebcf}.key.bump{text-decoration:underline;font-weight:bold}
+.key.active{background:#613394;color:white;border-color:#613394;outline:2px solid #b89532}
+#result{margin-top:24px;border-top:2px solid #e5d9ef;padding-top:22px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.metric{background:#f5f1fa;padding:12px;border-radius:8px}.metric strong{display:block;font-size:23px}.metric span{font-size:12px;color:#705d7c}
+#progress-detail{line-height:1.9}.legend{font-size:12px;color:#705d7c;line-height:1.8}footer{margin-top:28px;color:#705d7c;font-size:13px}
+@media(max-width:850px){.layout{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.group-items{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){main{padding:0 12px 24px}.card{padding:16px}header{padding:20px}h1{font-size:24px}.key{font-size:10px;height:29px}.key-row{gap:2px}.group-items{grid-template-columns:1fr}}
+</style>
 </head>
-
 <body>
-  <main class="todo-app">
-    <h1>Todoリスト</h1>
+<header><div class="brand">KOTOKOTO / TYPING PRACTICE</div><h1>ことことタイピング</h1><p>見ながら、ゆっくり。一文字ずつ、身につく。</p></header>
+<main>
+<section id="auth-section" class="card auth" hidden>
+<h2>今日も、少しずつ練習しよう</h2><p class="muted">ログインすると、練習の記録を別のPCでも続けられます。</p>
+<form id="auth-form">
+<label for="email-input">メールアドレス</label><input id="email-input" type="email" autocomplete="email" required>
+<label for="password-input">パスワード（6文字以上）</label><input id="password-input" type="password" autocomplete="current-password" minlength="6" required>
+<div class="actions"><button id="login-button" class="primary" type="submit">ログイン</button><button id="signup-button" type="button">新規登録</button></div>
+<div class="actions"><button id="forgot-password-button" type="button">パスワードを忘れた方</button></div>
+<p id="auth-message" class="message" role="status"></p>
+</form></section>
+<section id="password-reset-section" class="card auth" hidden>
+<h2>パスワードを再設定</h2>
+<form id="password-reset-form">
+<label for="new-password-input">新しいパスワード</label><input id="new-password-input" type="password" autocomplete="new-password" minlength="6" required>
+<label for="confirm-password-input">新しいパスワード（確認）</label><input id="confirm-password-input" type="password" autocomplete="new-password" minlength="6" required>
+<div class="actions"><button id="update-password-button" class="primary" type="submit">パスワードを変更</button></div>
+<p id="password-reset-message" class="message" role="status"></p>
+</form></section>
+<p id="boot-message" class="message" role="status">ログイン状態を確認しています…</p>
+<section id="learning-section" hidden>
+<div class="userbar"><span id="user-email"></span><button id="logout-button">ログアウト</button></div>
+<div class="layout">
+<aside class="card"><h2>練習の道のり</h2><div id="summary" class="summary">記録を読み込み中…</div>
+<p class="muted">まずは短い問題から。順番に進んでも、同じ問題を繰り返しても大丈夫です。</p>
+<p id="load-message" class="message" role="status"></p><button id="reload-button" hidden>読み込みを再試行</button>
+<nav id="exercise-list" aria-label="練習問題"></nav></aside>
+<section class="card" id="practice">
+<div id="empty-state"><h2>練習問題を選びましょう</h2><p class="muted">初めての方は「キーの位置」から始めてみてください。</p></div>
+<div id="exercise-panel" hidden>
+<p id="exercise-category" class="eyebrow"></p><h2 id="exercise-title"></h2><p id="instructions"></p><p id="source" class="muted" hidden></p>
+<p id="input-guide" class="summary"></p>
+<div id="target" aria-label="正解の入力内容"></div>
+<p class="legend">緑：一致 ／ 赤い波線：違い ／ 紫の下線：次の文字（入力位置で比較）</p>
+<div class="actions"><label><input id="hint-toggle" type="checkbox"> キーボードを表示</label></div>
+<div id="keyboard-area"><div id="keyboard" aria-label="日本語JISキーボードの配置"></div>
+<p class="legend">緑のキーがホームポジション。左手は A S D F、右手は J K L ;。F・Jの突起を目印に、親指はスペースへ。紫のキーが次に押すキーです。</p></div>
+<label for="typing-input">ここに入力</label><textarea id="typing-input" rows="3" maxlength="2000" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" disabled aria-describedby="input-guide input-feedback"></textarea>
+<p id="input-feedback" class="muted"></p>
+<div class="actions"><button id="start-button" class="primary">開始</button><button id="score-button" disabled>採点</button><span id="timer" class="muted">0.0 秒</span></div>
+<p id="practice-message" class="message" role="status"></p>
+<section id="result" hidden aria-label="今回の結果">
+<h3>今回の記録</h3><div id="metrics" class="metrics"></div><p id="qualification"></p>
+<p id="save-message" class="message" role="status"></p>
+<div class="actions"><button id="save-button" hidden>保存を再試行</button><button id="again-button">もう一度練習</button><button id="next-button" class="primary">次の問題</button></div>
+</section>
+<p id="progress-detail" class="muted"></p>
+</div></section>
+</div>
+<footer>速さより、まずは正確さから。文章入力の次には、聞き取り・議事録の練習へ（今後対応予定）。</footer>
+</section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Project URL / Publishable keyは公開用。データはSQLのRLSで保護します。
+// Secret key / service_role keyは絶対にここへ書かないでください。
+const SUPABASE_URL = 'https://eyxjcjsqmfqooijcrrwt.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_0Annl62APsDYUGDs5oNpDQ_3o4HthXP';
+const REDIRECT_URL = /^https?:$/.test(location.protocol)
+  ? location.origin + location.pathname
+  : 'https://nwoooqu7.github.io/my-todo-app/outputs/index.html';
+const $ = id => document.getElementById(id);
+const levels = ['キーの位置', 'ホームポジション', 'ヒントを減らして単語', '日本語の短文'];
+const statusNames = { not_started: '未着手', practicing: '練習中', mastered: '習得済み' };
+let client, currentUser = null, recovery = false, screenReady = false;
+let exercises = [], progress = new Map(), selected = null;
+let running = false, composing = false, timerId, startTime = 0, startedAt, hintUsed = false;
+let pending = null, saving = false, generation = 0, loadSequence = 0;
 
-    <!-- ログインしていないときに表示する画面 -->
-    <section id="auth-section">
-      <form id="auth-form" class="auth-form">
-        <label for="email-input">メールアドレス</label>
-        <input
-          id="email-input"
-          class="auth-input"
-          type="email"
-          autocomplete="email"
-          required
-        >
-
-        <label for="password-input">パスワード</label>
-        <input
-          id="password-input"
-          class="auth-input"
-          type="password"
-          autocomplete="current-password"
-          minlength="6"
-          required
-        >
-
-        <div class="auth-actions">
-          <button id="login-button" type="submit">ログイン</button>
-          <button id="signup-button" type="button">新規登録</button>
-        </div>
-
-        <button id="forgot-password-button" type="button">
-          パスワードを忘れた方
-        </button>
-
-        <p id="auth-message" role="status"></p>
-      </form>
-    </section>
-
-    <!-- 再設定メールのリンクから戻ったときに表示する画面 -->
-    <section id="password-reset-section" hidden>
-      <form id="password-reset-form" class="auth-form">
-        <p>新しいパスワードを入力してください。</p>
-
-        <label for="new-password-input">新しいパスワード</label>
-        <input
-          id="new-password-input"
-          class="auth-input"
-          type="password"
-          autocomplete="new-password"
-          minlength="6"
-          required
-        >
-
-        <label for="confirm-password-input">新しいパスワード（確認）</label>
-        <input
-          id="confirm-password-input"
-          class="auth-input"
-          type="password"
-          autocomplete="new-password"
-          minlength="6"
-          required
-        >
-
-        <div class="auth-actions">
-          <button id="update-password-button" type="submit">
-            パスワードを変更
-          </button>
-        </div>
-
-        <p id="password-reset-message" role="status"></p>
-      </form>
-    </section>
-
-    <!-- ログインしているときに表示する画面 -->
-    <section id="todo-section" hidden>
-      <div class="user-area">
-        <span id="user-email"></span>
-        <button id="logout-button" type="button">ログアウト</button>
-      </div>
-
-      <div class="input-area">
-        <input
-          id="todo-input"
-          type="text"
-          placeholder="やることを入力"
-          aria-label="新しいTodo"
-        >
-        <select id="priority-input" aria-label="優先度">
-          <option value="soul">魂ッ！</option>
-          <option value="high">高</option>
-          <option value="medium" selected>中</option>
-          <option value="low">低</option>
-          <option value="absolute_zero">絶対零度</option>
-        </select>
-        <button id="add-button" type="button">追加</button>
-      </div>
-
-      <ul id="todo-list"></ul>
-    </section>
-  </main>
-
-  <!-- Supabase JavaScript ClientをCDNから読み込む -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script>
-    // Supabase Dashboardで確認した値に置き換える
-    // Project URLとPublishable key（旧anon key）は、ブラウザで公開してよい値です。
-    // ただし、データを守るためにSupabase側でRLSを必ず設定してください。
-    // secret keyやservice_role keyは秘密情報なので、ここには絶対に書きません。
-    const SUPABASE_URL = 'https://eyxjcjsqmfqooijcrrwt.supabase.co';
-    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_0Annl62APsDYUGDs5oNpDQ_3o4HthXP';
-
-    // Supabaseへ接続するためのクライアントを初期化する
-    const supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_PUBLISHABLE_KEY
-    );
-
-    // HTMLの要素を取得する
-    const authSection = document.getElementById('auth-section');
-    const authForm = document.getElementById('auth-form');
-    const emailInput = document.getElementById('email-input');
-    const passwordInput = document.getElementById('password-input');
-    const loginButton = document.getElementById('login-button');
-    const signupButton = document.getElementById('signup-button');
-    const forgotPasswordButton = document.getElementById('forgot-password-button');
-    const authMessage = document.getElementById('auth-message');
-    const passwordResetSection = document.getElementById('password-reset-section');
-    const passwordResetForm = document.getElementById('password-reset-form');
-    const newPasswordInput = document.getElementById('new-password-input');
-    const confirmPasswordInput = document.getElementById('confirm-password-input');
-    const updatePasswordButton = document.getElementById('update-password-button');
-    const passwordResetMessage = document.getElementById('password-reset-message');
-    const todoSection = document.getElementById('todo-section');
-    const userEmail = document.getElementById('user-email');
-    const logoutButton = document.getElementById('logout-button');
-    const todoInput = document.getElementById('todo-input');
-    const priorityInput = document.getElementById('priority-input');
-    const addButton = document.getElementById('add-button');
-    const todoList = document.getElementById('todo-list');
-    let currentUser = null;
-    let isPasswordRecovery = false;
-
-    // file:// ではメールから戻れないため、公開中のGitHub Pagesを戻り先にする
-    // SupabaseのRedirect URLsにも、このURLを登録してください。
-    const PASSWORD_RESET_REDIRECT_URL = location.protocol === 'http:' || location.protocol === 'https:'
-      ? location.origin + location.pathname
-      : 'https://nwoooqu7.github.io/my-todo-app/outputs/index.html';
-
-    // ログイン・登録画面にメッセージを表示する関数
-    function showAuthMessage(message, isError) {
-      authMessage.textContent = message;
-      authMessage.classList.toggle('error', isError);
+// 採点はUnicodeの文字単位。UTF-16の長さで日本語や絵文字を分割しません。
+function normalizeText(text) {
+  return text.replace(/\r\n?/g, '\n').normalize('NFC');
+}
+function editDistance(left, right) {
+  let row = Array.from({ length: right.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= left.length; i++) {
+    const next = [i];
+    for (let j = 1; j <= right.length; j++) {
+      next[j] = Math.min(next[j - 1] + 1, row[j] + 1,
+        row[j - 1] + (left[i - 1] === right[j - 1] ? 0 : 1));
     }
+    row = next;
+  }
+  return row[right.length];
+}
+function calculateScore(expected, typed, elapsed) {
+  const a = Array.from(normalizeText(expected)), b = Array.from(normalizeText(typed));
+  if (!a.length || !b.length || elapsed <= 0) throw new Error('入力内容と経過時間を確認してください。');
+  const errors = editDistance(a, b);
+  return { error_count: errors, total_characters: b.length,
+    accuracy: 100 * (1 - errors / Math.max(a.length, b.length)),
+    typing_speed: Math.max(0, a.length - errors) * 60000 / elapsed };
+}
+function message(id, text, error = false) {
+  $(id).textContent = text;
+  $(id).classList.toggle('error', error);
+}
+function report(id, label, error) {
+  console.error(label, error);
+  message(id, label + '：' + (error.message || String(error)), true);
+}
+function unwrap(result) {
+  if (result.error) throw result.error;
+  return result.data;
+}
+function progressText(exercise) {
+  const p = progress.get(exercise.id);
+  if (!p) return '未着手 · まずは1回、練習してみましょう。';
+  return statusNames[p.status] + ' · 練習 ' + p.attempt_count + '回 · 条件達成 ' +
+    p.qualifying_attempt_count + '回（習得の目安：3回） · 最高正確率 ' + Number(p.best_accuracy).toFixed(1) +
+    '% · 最高速度 ' + Number(p.best_speed).toFixed(1) + '文字/分 · 最終練習 ' +
+    new Date(p.last_practiced_at).toLocaleString('ja-JP');
+}
 
-    // ログイン・登録の処理中は、ボタンを押せないようにする
-    function setAuthButtonsDisabled(isDisabled) {
-      loginButton.disabled = isDisabled;
-      signupButton.disabled = isDisabled;
-      forgotPasswordButton.disabled = isDisabled;
+// Authイベント内ではDBアクセスを待たず、別のタスクで画面を更新します。
+function showSession(session) {
+  const nextUser = session?.user || null;
+  const sameUser = currentUser?.id === nextUser?.id;
+  currentUser = nextUser;
+  $('boot-message').hidden = true;
+  $('auth-section').hidden = !!currentUser || recovery;
+  $('password-reset-section').hidden = !recovery;
+  $('learning-section').hidden = !currentUser || recovery;
+  if (sameUser && screenReady && !recovery) return;
+  screenReady = true;
+  generation++;
+  clearInterval(timerId);
+  running = false; composing = false; pending = null; saving = false;
+  exercises = []; progress.clear(); selected = null;
+  $('exercise-panel').hidden = true;
+  $('empty-state').hidden = false;
+  $('exercise-list').replaceChildren();
+  $('typing-input').value = '';
+  $('metrics').replaceChildren();
+  $('result').hidden = true;
+  $('user-email').textContent = currentUser?.email || '';
+  if (currentUser && !recovery) void loadExercises();
+}
+async function authAction(action) {
+  const buttons = ['login-button','signup-button','forgot-password-button'];
+  buttons.forEach(id => $(id).disabled = true);
+  try { await action(); }
+  catch (error) { report('auth-message', '認証処理を完了できませんでした', error); }
+  finally { buttons.forEach(id => $(id).disabled = false); }
+}
+$('auth-form').addEventListener('submit', event => {
+  event.preventDefault();
+  if (!$('auth-form').reportValidity()) return;
+  void authAction(async () => {
+    message('auth-message', 'ログインしています…');
+    const data = unwrap(await client.auth.signInWithPassword({
+      email: $('email-input').value.trim(), password: $('password-input').value
+    }));
+    $('password-input').value = '';
+    message('auth-message', '');
+    showSession(data.session);
+  });
+});
+$('signup-button').onclick = () => {
+  if (!$('auth-form').reportValidity()) return;
+  void authAction(async () => {
+    const data = unwrap(await client.auth.signUp({
+      email: $('email-input').value.trim(), password: $('password-input').value,
+      options: { emailRedirectTo: REDIRECT_URL }
+    }));
+    $('password-input').value = '';
+    message('auth-message', data.session ? '登録しました。' : '確認メールを送りました。メール内のリンクを開いてからログインしてください。');
+    if (data.session) showSession(data.session);
+  });
+};
+$('forgot-password-button').onclick = () => {
+  if (!$('email-input').reportValidity()) return;
+  void authAction(async () => {
+    unwrap(await client.auth.resetPasswordForEmail($('email-input').value.trim(), { redirectTo: REDIRECT_URL }));
+    message('auth-message', '再設定メールを送りました。メール内のリンクを開いてください。');
+  });
+};
+$('password-reset-form').onsubmit = async event => {
+  event.preventDefault();
+  if (!$('password-reset-form').reportValidity()) return;
+  if ($('new-password-input').value !== $('confirm-password-input').value) {
+    message('password-reset-message', '確認用パスワードが一致しません。', true); return;
+  }
+  $('update-password-button').disabled = true;
+  try {
+    const data = unwrap(await client.auth.getSession());
+    if (!data.session) throw new Error('再設定用のログイン情報がありません。最新の再設定メールのリンクを開き直してください。');
+    unwrap(await client.auth.updateUser({ password: $('new-password-input').value }));
+    $('password-reset-form').reset();
+    unwrap(await client.auth.signOut());
+    recovery = false; screenReady = false; showSession(null);
+    message('auth-message', '変更しました。新しいパスワードでログインしてください。');
+  } catch (error) { report('password-reset-message', 'パスワードを変更できませんでした', error); }
+  finally { $('update-password-button').disabled = false; }
+};
+$('logout-button').onclick = async () => {
+  if (saving || ((pending || running) && !confirm('現在の練習と未保存の結果を破棄してログアウトしますか？'))) return;
+  $('logout-button').disabled = true;
+  try {
+    unwrap(await client.auth.signOut());
+    recovery = false; showSession(null);
+    message('auth-message', 'ログアウトしました。');
+  } catch (error) { report('load-message', 'ログアウトできませんでした', error); }
+  finally { $('logout-button').disabled = false; }
+};
+
+async function loadExercises() {
+  if (!currentUser) return;
+  const owner = currentUser.id, token = ++loadSequence, epoch = generation;
+  $('reload-button').hidden = true;
+  message('load-message', '問題と記録を読み込んでいます…');
+  try {
+    const results = await Promise.all([
+      client.from('exercises').select('*').eq('is_published', true).order('display_order'),
+      client.from('user_exercise_progress').select('*').eq('user_id', owner)
+    ]);
+    if (generation !== epoch || token !== loadSequence) return;
+    exercises = unwrap(results[0]);
+    progress = new Map(unwrap(results[1]).map(p => [p.exercise_id, p]));
+    renderList();
+    message('load-message', exercises.length ? '' : '公開中の練習問題がありません。');
+  } catch (error) {
+    if (generation !== epoch || token !== loadSequence) return;
+    report('load-message', '問題を読み込めませんでした。時間をおいて再試行してください', error);
+    $('reload-button').hidden = false;
+  }
+}
+$('reload-button').onclick = loadExercises;
+function renderList() {
+  const openLevels = new Set([...document.querySelectorAll('.exercise-group[open]')].map(el => Number(el.dataset.level)));
+  $('exercise-list').replaceChildren();
+  $('summary').textContent = '習得済み ' + exercises.filter(e => progress.get(e.id)?.status === 'mastered').length +
+    ' / ' + exercises.length + '問 · 練習 ' +
+    [...progress.values()].reduce((sum, p) => sum + p.attempt_count, 0) + '回';
+  for (let level = 1; level <= 4; level++) {
+    const group = exercises.filter(e => e.level === level);
+    if (!group.length) continue;
+    const section = document.createElement('details');
+    section.className = 'exercise-group'; section.dataset.level = level;
+    section.open = openLevels.has(level) || level === (selected?.level || 1);
+    const heading = document.createElement('summary');
+    heading.textContent = level + '. ' + levels[level - 1];
+    const items = document.createElement('div'); items.className = 'group-items';
+    section.append(heading, items); $('exercise-list').append(section);
+    for (const exercise of group) {
+      const button = document.createElement('button');
+      button.className = 'exercise'; button.disabled = running || saving || !!pending;
+      button.setAttribute('aria-current', String(selected?.id === exercise.id));
+      const title = document.createElement('strong'), detail = document.createElement('small');
+      title.textContent = exercise.title;
+      detail.textContent = statusNames[progress.get(exercise.id)?.status || 'not_started'] +
+        ' · 難易度 ' + exercise.difficulty + ' · 目標 ' + exercise.target_speed + '文字/分';
+      button.append(title, detail); button.onclick = () => selectExercise(exercise);
+      items.append(button);
     }
-
-    // 登録メールアドレス宛てに、パスワード再設定メールを送る
-    async function sendPasswordResetEmail() {
-      if (!emailInput.reportValidity()) {
-        return;
-      }
-
-      setAuthButtonsDisabled(true);
-      showAuthMessage('パスワード再設定メールを送っています...', false);
-
-      const { error } = await supabaseClient.auth.resetPasswordForEmail(
-        emailInput.value.trim(),
-        { redirectTo: PASSWORD_RESET_REDIRECT_URL }
-      );
-
-      setAuthButtonsDisabled(false);
-
-      if (error) {
-        console.error('パスワード再設定メールを送信できませんでした:', error);
-        showAuthMessage('再設定メールを送信できませんでした: ' + error.message, true);
-        return;
-      }
-
-      showAuthMessage(
-        '再設定メールを送りました。メール内のリンクを開いてください。',
-        false
-      );
+  }
+  if (selected) $('progress-detail').textContent = progressText(selected);
+}
+function selectExercise(exercise) {
+  if (running || saving || pending) return;
+  selected = exercise;
+  resetPractice();
+  $('empty-state').hidden = true;
+  $('exercise-panel').hidden = false;
+  $('exercise-category').textContent = 'STEP ' + exercise.level + ' / ' + exercise.category;
+  $('exercise-title').textContent = exercise.title;
+  $('instructions').textContent = exercise.prompt_text;
+  const attribution = [exercise.source_title, exercise.character_name ? '発言：' + exercise.character_name : ''].filter(Boolean).join(' ／ ');
+  $('source').textContent = attribution;
+  $('source').hidden = !attribution;
+  $('input-guide').textContent = exercise.exercise_type === 'key_drill'
+    ? '日本語入力をオフ（半角英数）にして、表示された文字を入力しましょう。'
+    : '日本語入力をオン（ローマ字入力）にして、変換を確定してから「採点」を押しましょう。';
+  renderList();
+  if (matchMedia('(max-width: 850px)').matches) $('practice').scrollIntoView({ block: 'start' });
+}
+function resetPractice() {
+  clearInterval(timerId); running = false; composing = false;
+  $('typing-input').value = ''; $('typing-input').disabled = true;
+  $('start-button').disabled = false; $('score-button').disabled = true;
+  $('result').hidden = true; $('timer').textContent = '0.0 秒';
+  $('hint-toggle').checked = selected.keyboard_hint_default;
+  $('hint-toggle').disabled = false;
+  $('keyboard-area').hidden = !$('hint-toggle').checked;
+  message('practice-message', '「開始」を押すと時間を計ります。');
+  message('input-feedback', '');
+  renderTarget();
+  renderKeyboard();
+}
+const keyboardRows = [
+  ['半/全','1','2','3','4','5','6','7','8','9','0','-','^','¥','BS'],
+  ['Tab','q','w','e','r','t','y','u','i','o','p','@','['],
+  ['英数','a','s','d','f','g','h','j','k','l',';',':',']','Enter'],
+  ['Shift','z','x','c','v','b','n','m',',','.','/','\\','Shift'],
+  ['Ctrl','Win','Alt','無変換','Space','変換','かな','Ctrl']
+];
+function renderKeyboard() {
+  const typed = Array.from(normalizeText($('typing-input').value));
+  const expected = Array.from(normalizeText(selected.expected_input));
+  // 誤字があれば、最初に一致しなくなった位置のキーを示します。
+  let index = 0;
+  while (index < typed.length && typed[index] === expected[index]) index++;
+  const next = selected.exercise_type === 'key_drill' ? expected[index] : null;
+  $('keyboard').replaceChildren();
+  for (const [rowIndex, keys] of keyboardRows.entries()) {
+    const row = document.createElement('div'); row.className = 'key-row';
+    for (const [keyIndex, key] of keys.entries()) {
+      const cell = document.createElement('span');
+      cell.className = 'key'; cell.textContent = key;
+      cell.classList.toggle('wide', key.length > 1);
+      // 左端を揃えて段ごとのずれを表現し、Q→A→Zの位置関係を保ちます。
+      let width = 2;
+      if (rowIndex === 0 && (keyIndex === 0 || key === 'BS')) width = 3;
+      if (rowIndex === 1 && keyIndex === 0) width = 3;
+      if (rowIndex === 2 && (keyIndex === 0 || key === 'Enter')) width = 4;
+      if (rowIndex === 3 && key === 'Shift') width = 5;
+      if (rowIndex === 4) width = [3,3,3,4,10,3,3,3][keyIndex];
+      cell.style.gridColumn = 'span ' + width;
+      cell.classList.toggle('home', 'asdfjkl;'.includes(key) && key.length === 1);
+      cell.classList.toggle('bump', key === 'f' || key === 'j');
+      const active = next === ' ' ? key === 'Space' : key === next;
+      cell.classList.toggle('active', active);
+      if (active) cell.setAttribute('aria-label', '次のキー：' + key);
+      row.append(cell);
     }
-
-    // 再設定メールのリンクを開いたあと、新しいパスワードに変更する
-    async function updatePassword(event) {
-      event.preventDefault();
-
-      if (!passwordResetForm.reportValidity()) {
-        return;
-      }
-
-      if (newPasswordInput.value !== confirmPasswordInput.value) {
-        passwordResetMessage.textContent = '確認用パスワードが一致しません。';
-        passwordResetMessage.classList.add('error');
-        return;
-      }
-
-      updatePasswordButton.disabled = true;
-      passwordResetMessage.textContent = 'パスワードを変更しています...';
-      passwordResetMessage.classList.remove('error');
-
-      const { error } = await supabaseClient.auth.updateUser({
-        password: newPasswordInput.value
-      });
-
-      if (error) {
-        console.error('パスワードを変更できませんでした:', error);
-        passwordResetMessage.textContent = 'パスワードを変更できませんでした: ' + error.message;
-        passwordResetMessage.classList.add('error');
-        updatePasswordButton.disabled = false;
-        return;
-      }
-
-      newPasswordInput.value = '';
-      confirmPasswordInput.value = '';
-      isPasswordRecovery = false;
-      await supabaseClient.auth.signOut();
-      passwordResetSection.hidden = true;
-      authSection.hidden = false;
-      todoSection.hidden = true;
-      showAuthMessage('パスワードを変更しました。新しいパスワードでログインしてください。', false);
-      updatePasswordButton.disabled = false;
+    $('keyboard').append(row);
+  }
+}
+function renderTarget() {
+  if (!selected) return;
+  const actual = Array.from(normalizeText($('typing-input').value));
+  const target = Array.from(normalizeText(selected.expected_input));
+  $('target').replaceChildren();
+  target.forEach((character, index) => {
+    const span = document.createElement('span'); span.textContent = character;
+    span.className = index < actual.length ? (actual[index] === character ? 'correct' : 'wrong') :
+      (index === actual.length ? 'next' : '');
+    $('target').append(span);
+  });
+  message('input-feedback', actual.length > target.length
+    ? '正解文より ' + (actual.length - target.length) + '文字多く入力されています。'
+    : '確定した入力 ' + actual.length + ' / ' + target.length + '文字');
+}
+$('hint-toggle').onchange = () => {
+  $('keyboard-area').hidden = !$('hint-toggle').checked;
+  if (running && $('hint-toggle').checked) hintUsed = true;
+};
+$('start-button').onclick = () => {
+  if (!selected || running || pending || saving) return;
+  running = true; startedAt = new Date().toISOString(); startTime = performance.now();
+  hintUsed = $('hint-toggle').checked;
+  $('typing-input').disabled = false; $('typing-input').focus();
+  $('start-button').disabled = true; $('score-button').disabled = false;
+  message('practice-message', '入力後に「採点」を押してください。Enterだけでは終了しません。');
+  timerId = setInterval(() => $('timer').textContent = ((performance.now() - startTime) / 1000).toFixed(1) + ' 秒', 100);
+  renderList();
+};
+$('typing-input').addEventListener('compositionstart', () => {
+  composing = true; $('score-button').disabled = true;
+});
+$('typing-input').addEventListener('compositionend', () => {
+  composing = false; $('score-button').disabled = !running;
+  renderTarget(); renderKeyboard();
+});
+$('typing-input').addEventListener('input', event => {
+  if (!composing && !event.isComposing) { renderTarget(); renderKeyboard(); }
+});
+$('score-button').onclick = () => {
+  if (!running || composing) return;
+  const elapsed = Math.floor(performance.now() - startTime);
+  let score;
+  try { score = calculateScore(selected.expected_input, $('typing-input').value, elapsed); }
+  catch (error) { message('practice-message', error.message, true); return; }
+  running = false; clearInterval(timerId);
+  $('score-button').disabled = true; $('typing-input').disabled = true; $('hint-toggle').disabled = true;
+  $('timer').textContent = (elapsed / 1000).toFixed(1) + ' 秒';
+  // 同じIDを再送することで、応答が失われても重複保存しません。
+  pending = { owner: currentUser.id, args: {
+    p_attempt_id: crypto.randomUUID(), p_exercise_id: selected.id,
+    p_typed_text: normalizeText($('typing-input').value), p_elapsed_ms: elapsed,
+    p_hint_used: hintUsed, p_started_at: startedAt, p_completed_at: new Date().toISOString()
+  }};
+  showResult(score, elapsed);
+  void saveAttempt();
+};
+function showResult(score, elapsed) {
+  $('result').hidden = false;
+  $('metrics').replaceChildren();
+  for (const [label, value] of [
+    ['正確率', score.accuracy.toFixed(1) + '%'],
+    ['正しい文字 / 分', score.typing_speed.toFixed(1)],
+    ['経過秒', (elapsed / 1000).toFixed(1)],
+    ['最終入力の誤り', String(score.error_count)]
+  ]) {
+    const cell = document.createElement('div'); cell.className = 'metric';
+    const number = document.createElement('strong'), caption = document.createElement('span');
+    number.textContent = value; caption.textContent = label; cell.append(number, caption); $('metrics').append(cell);
+  }
+  const qualified = score.accuracy >= 95 && score.typing_speed >= selected.target_speed;
+  $('qualification').textContent = qualified
+    ? '今回の習得条件を達成！ 合計3回の達成で「習得済み」です。'
+    : '目標は正確率95%以上・' + selected.target_speed + '文字/分。同じ問題をゆっくり練習しましょう。';
+  message('practice-message', '最終入力を採点しました。途中で修正した間違いは誤り数に含みません。');
+}
+async function saveAttempt() {
+  if (!pending || saving || currentUser?.id !== pending.owner) return;
+  const attempt = pending, epoch = generation;
+  saving = true;
+  $('save-button').hidden = true; $('again-button').disabled = true; $('next-button').disabled = true;
+  $('logout-button').disabled = true;
+  message('save-message', '記録を保存しています…'); renderList();
+  try {
+    const data = unwrap(await client.rpc('record_typing_attempt', attempt.args));
+    if (epoch !== generation || currentUser?.id !== attempt.owner) return;
+    if (!data?.progress || !data?.attempt) throw new Error('保存結果を確認できませんでした。再試行してください。');
+    progress.set(data.progress.exercise_id, data.progress);
+    showResult(data.attempt, data.attempt.elapsed_ms);
+    pending = null;
+    message('save-message', '保存しました。' + statusNames[data.progress.status] +
+      ' · 条件達成 ' + data.progress.qualifying_attempt_count + '回');
+  } catch (error) {
+    if (epoch !== generation) return;
+    report('save-message', '保存できませんでした。結果はこの画面に残っています。ページを閉じずに再試行してください', error);
+    $('save-button').hidden = false;
+  } finally {
+    if (epoch === generation) {
+      saving = false; $('logout-button').disabled = false;
+      $('again-button').disabled = !!pending;
+      $('next-button').disabled = !!pending || exercises.indexOf(selected) === exercises.length - 1;
+      renderList();
     }
-
-    // メールアドレスとパスワードで新規登録する
-    async function signUp() {
-      if (!authForm.reportValidity()) {
-        return;
-      }
-
-      setAuthButtonsDisabled(true);
-      showAuthMessage('登録しています...', false);
-
-      const { data, error } = await supabaseClient.auth.signUp({
-        email: emailInput.value.trim(),
-        password: passwordInput.value
-      });
-
-      setAuthButtonsDisabled(false);
-
-      if (error) {
-        console.error('ユーザー登録に失敗しました:', error);
-        showAuthMessage('登録できませんでした: ' + error.message, true);
-        return;
-      }
-
-      passwordInput.value = '';
-
-      if (data.session) {
-        showAuthMessage('登録してログインしました。', false);
-      } else {
-        showAuthMessage('確認メールを送りました。メール内のリンクを開いてください。', false);
-      }
-    }
-
-    // メールアドレスとパスワードでログインする
-    async function signIn(event) {
-      event.preventDefault();
-
-      if (!authForm.reportValidity()) {
-        return;
-      }
-
-      setAuthButtonsDisabled(true);
-      showAuthMessage('ログインしています...', false);
-
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email: emailInput.value.trim(),
-        password: passwordInput.value
-      });
-
-      setAuthButtonsDisabled(false);
-
-      if (error) {
-        console.error('ログインに失敗しました:', error);
-        showAuthMessage('ログインできませんでした: ' + error.message, true);
-        return;
-      }
-
-      passwordInput.value = '';
-      showAuthMessage('', false);
-    }
-
-    // 現在のユーザーをログアウトさせる
-    async function signOut() {
-      logoutButton.disabled = true;
-      const { error } = await supabaseClient.auth.signOut();
-      logoutButton.disabled = false;
-
-      if (error) {
-        console.error('ログアウトに失敗しました:', error);
-        return;
-      }
-
-      showAuthMessage('ログアウトしました。', false);
-    }
-
-    // ログイン状態に合わせて、表示する画面を切り替える
-    async function updateScreen(session) {
-      const nextUser = session ? session.user : null;
-      const isSameUser = currentUser?.id === nextUser?.id;
-
-      if (isPasswordRecovery) {
-        currentUser = nextUser;
-        authSection.hidden = true;
-        passwordResetSection.hidden = false;
-        todoSection.hidden = true;
-        return;
-      }
-
-      // 初期確認とAuthイベントが重なった場合の二重読み込みを防ぐ
-      if (isSameUser) {
-        return;
-      }
-
-      currentUser = nextUser;
-      authSection.hidden = currentUser !== null;
-      passwordResetSection.hidden = true;
-      todoSection.hidden = currentUser === null;
-      todoList.replaceChildren();
-
-      if (currentUser === null) {
-        userEmail.textContent = '';
-        return;
-      }
-
-      userEmail.textContent = currentUser.email;
-      await loadTodos();
-    }
-
-    // 1つのTodoを画面に表示する関数
-    function createTodo(todo) {
-      const listItem = document.createElement('li');
-      listItem.className = 'todo-item';
-
-      // 古いTodoや想定外の値は、安全のため「中」として扱う
-      const validPriorities = ['soul', 'high', 'medium', 'low', 'absolute_zero'];
-      const priority = validPriorities.includes(todo.priority)
-        ? todo.priority
-        : 'medium';
-      const priorityLabels = {
-        soul: '魂ッ！',
-        high: '高',
-        medium: '中',
-        low: '低',
-        absolute_zero: '絶対零度'
-      };
-
-      // 完了・未完了を切り替えるチェックボックス
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.checked = todo.completed;
-      checkbox.setAttribute('aria-label', todo.title + 'の完了状態を切り替える');
-
-      // 完了済みのTodoなら、打ち消し線を付ける
-      if (todo.completed) {
-        listItem.classList.add('completed');
-      }
-
-      // Todoの文字を表示するspan要素
-      const text = document.createElement('span');
-      text.className = 'todo-text';
-      text.textContent = todo.title;
-
-      // 優先度を文字と色で表示する
-      const priorityBadge = document.createElement('span');
-      priorityBadge.className = 'priority-badge priority-' + priority;
-      priorityBadge.textContent = priorityLabels[priority] || '中';
-      priorityBadge.setAttribute('aria-label', '優先度: ' + priorityBadge.textContent);
-
-      // Todoを消す削除ボタン
-      const deleteButton = document.createElement('button');
-      deleteButton.type = 'button';
-      deleteButton.className = 'delete-button';
-      deleteButton.textContent = '削除';
-      deleteButton.setAttribute('aria-label', todo.title + 'を削除する');
-
-      // チェック時にSupabaseの完了状態を更新する
-      checkbox.addEventListener('change', async function () {
-        if (currentUser === null) {
-          return;
-        }
-
-        const newCompleted = checkbox.checked;
-        checkbox.disabled = true;
-        listItem.classList.toggle('completed', checkbox.checked);
-
-        const { error } = await supabaseClient
-          .from('todos')
-          .update({ completed: newCompleted })
-          .eq('id', todo.id)
-          .eq('user_id', currentUser.id);
-
-        if (error) {
-          console.error('Todoの完了状態を更新できませんでした:', error);
-
-          // 更新に失敗したら、画面を変更前の状態へ戻す
-          checkbox.checked = !newCompleted;
-          listItem.classList.toggle('completed', checkbox.checked);
-        }
-
-        checkbox.disabled = false;
-      });
-
-      // 削除ボタンが押されたら、SupabaseからTodoを削除する
-      deleteButton.addEventListener('click', async function () {
-        if (currentUser === null) {
-          return;
-        }
-
-        deleteButton.disabled = true;
-
-        const { error } = await supabaseClient
-          .from('todos')
-          .delete()
-          .eq('id', todo.id)
-          .eq('user_id', currentUser.id);
-
-        if (error) {
-          console.error('Todoを削除できませんでした:', error);
-          deleteButton.disabled = false;
-          return;
-        }
-
-        listItem.remove();
-      });
-
-      // 作った要素を一覧に追加する
-      listItem.appendChild(checkbox);
-      listItem.appendChild(text);
-      listItem.appendChild(priorityBadge);
-      listItem.appendChild(deleteButton);
-      todoList.appendChild(listItem);
-    }
-
-    // SupabaseからTodo一覧を読み込む関数
-    async function loadTodos() {
-      if (currentUser === null) {
-        return;
-      }
-
-      const { data: todos, error } = await supabaseClient
-        .from('todos')
-        .select('id, title, completed, priority, created_at')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Todo一覧を読み込めませんでした:', error);
-        return;
-      }
-
-      todos.forEach(function (todo) {
-        createTodo(todo);
-      });
-    }
-
-    // 入力された内容をSupabaseへ追加する関数
-    async function addTodo() {
-      if (currentUser === null) {
-        return;
-      }
-
-      const todoTitle = todoInput.value.trim();
-      const todoPriority = priorityInput.value;
-
-      // 入力欄が空、または追加処理中なら何もしない
-      if (todoTitle === '' || addButton.disabled) {
-        return;
-      }
-
-      addButton.disabled = true;
-
-      const { data: todo, error } = await supabaseClient
-        .from('todos')
-        .insert({
-          user_id: currentUser.id,
-          title: todoTitle,
-          completed: false,
-          priority: todoPriority
-        })
-        .select('id, title, completed, priority, created_at')
-        .single();
-
-      addButton.disabled = false;
-
-      if (error) {
-        console.error('Todoを追加できませんでした:', error);
-        return;
-      }
-
-      createTodo(todo);
-
-      // 入力欄を空にして、もう一度入力しやすくする
-      todoInput.value = '';
-      priorityInput.value = 'medium';
-      todoInput.focus();
-    }
-
-    // ログイン・登録・ログアウトのボタン操作
-    authForm.addEventListener('submit', signIn);
-    signupButton.addEventListener('click', signUp);
-    forgotPasswordButton.addEventListener('click', sendPasswordResetEmail);
-    passwordResetForm.addEventListener('submit', updatePassword);
-    logoutButton.addEventListener('click', signOut);
-
-    // 追加ボタンをクリックしたとき
-    addButton.addEventListener('click', addTodo);
-
-    // 入力欄でEnterキーを押したときも追加する
-    todoInput.addEventListener('keydown', function (event) {
-      if (event.key === 'Enter') {
-        addTodo();
-      }
+  }
+}
+$('save-button').onclick = saveAttempt;
+$('again-button').onclick = () => { if (!pending && !saving) { resetPractice(); renderList(); } };
+$('next-button').onclick = () => {
+  const next = exercises[exercises.indexOf(selected) + 1];
+  if (next) selectExercise(next);
+};
+window.addEventListener('beforeunload', event => {
+  if (running || pending) { event.preventDefault(); event.returnValue = ''; }
+});
+async function initialize() {
+  try {
+    if (!window.supabase) throw new Error('接続ライブラリを読み込めません。インターネット接続を確認して再読み込みしてください。');
+    client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    let authEventSeen = false;
+    client.auth.onAuthStateChange((event, session) => {
+      authEventSeen = true;
+      if (event === 'PASSWORD_RECOVERY') recovery = true;
+      setTimeout(() => showSession(session), 0);
     });
-
-    // ログイン状態が変わるたびに、表示する画面を切り替える
-    supabaseClient.auth.onAuthStateChange(function (event, session) {
-      if (event === 'PASSWORD_RECOVERY') {
-        isPasswordRecovery = true;
-      }
-
-      updateScreen(session);
-    });
-
-    // ページを開いたときのログイン状態を確認する
-    async function initializeAuth() {
-      const { data, error } = await supabaseClient.auth.getSession();
-
-      if (error) {
-        console.error('ログイン状態を確認できませんでした:', error);
-        return;
-      }
-
-      await updateScreen(data.session);
-    }
-
-    initializeAuth();
-  </script>
+    const data = unwrap(await client.auth.getSession());
+    if (!authEventSeen) showSession(data.session);
+  } catch (error) { report('boot-message', '起動できませんでした', error); }
+}
+initialize();
+</script>
 </body>
 </html>

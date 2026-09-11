@@ -15,3 +15,12 @@ $RECYCLE.BIN/
 *.swp
 *.log
 ~$*
+
+# ローカル検証用の依存関係・生成画像（アプリの実行には不要）
+work/
+node_modules/
+
+# 接続情報などのローカル環境設定（見本は管理可能）
+.env
+.env.*
+!.env.example
